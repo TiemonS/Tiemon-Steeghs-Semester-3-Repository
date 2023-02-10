@@ -1,7 +1,6 @@
 #include <Arduino.h>
 
-char bericht[] = "Test";
-
+char bericht[] = "Test\n";
 void USART_Init(unsigned int ubrr)
 {
 /*Set baud rate */
@@ -26,11 +25,15 @@ void delayMillis(unsigned long delayTime)
   }
 }
 
+unsigned char serialCheckTx()
+{
+  return(UCSR0A & _BV(UDRE0));
+}
+
 void setup() 
 {
   long stap = 16UL * (long)9600;
   int ubrr = F_CPU / stap - 1;
-
   USART_Init(ubrr);
 }
 
@@ -38,8 +41,10 @@ void PrintMessage(char Message[])
 {
   for (size_t i = 0; i < strlen(Message); i++)
   {
+    while (serialCheckTx() == 0)
+    {
+    }    
     UDR0 = Message[i];  
-    delayMillis(10);
   }  
 }
 
