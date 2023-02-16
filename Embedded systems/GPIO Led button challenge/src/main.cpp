@@ -101,6 +101,9 @@ int main(void)
   //MX_FREERTOS_Init();
   //osKernelStart(); /* Start scheduler */
 
+  int buttonstate;
+  int lastbuttonstate = 0;
+  
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -116,27 +119,33 @@ int main(void)
   GPIOA->MODER = (GPIOA->MODER & ~GPIO_MODER_MODER0) | (0b01 << GPIO_MODER_MODER0_Pos);
   GPIOA->MODER = (GPIOA->MODER & ~GPIO_MODER_MODER1) | (0b00 << GPIO_MODER_MODER1_Pos);
 
+  GPIOB->MODER = (GPIOB->MODER & ~GPIO_MODER_MODER5) | (0b01 << GPIO_MODER_MODER5_Pos);
+  GPIOA->MODER = (GPIOA->MODER & ~GPIO_MODER_MODER8) | (0b00 << GPIO_MODER_MODER8_Pos);
+  //het instellen van de push pull down
+  //GPIOA->PUPDR = (GPIOA->MODER & ~GPIO_MODER_MODER8) | (0b01 << GPIO_MODER_MODER8_Pos);
+
   while (1)
   {
-    /* USER CODE END WHILE */
-    int data = GPIOA->IDR & GPIO_IDR_1;
-    snprintf(msgBuf, MSGBUFSIZE, "%d", data);
+    //het aflezen van de button pin en dit vervolgens uiprinten
+    int buttonstate = (GPIOA->IDR & GPIO_IDR_8) >> 8; //hij moet 8 na rechts worden verplaatst omdat het anders als 256 wordt gelezen (100000000)
+
+    snprintf(msgBuf, MSGBUFSIZE, "%d", buttonstate);
     HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
 
     snprintf(msgBuf, MSGBUFSIZE, "%s", "In loop!\r\n");
     HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
     
     //HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-    if ((GPIOA->IDR & GPIO_IDR_1) == 2)
+
+    //Als de knop is ingedrukt en de vorige staat 0 is wordt de led aangezet
+    if (buttonstate == 1 && lastbuttonstate == 0)
     {
       //dit toggled de PA0 Pin waarop ik een led heb aangesloten
-      GPIOA->ODR ^= (1); 
+      GPIOB->ODR ^= (1 << 5); 
     }
-
-    HAL_Delay(1000);
-    /* USER CODE BEGIN 3 */
+    //de vorige staat wordt vervolgens gelijk gemaakt aan de buttonstate
+    lastbuttonstate = buttonstate;
   }
-  /* USER CODE END 3 */
 }
 
 /**
