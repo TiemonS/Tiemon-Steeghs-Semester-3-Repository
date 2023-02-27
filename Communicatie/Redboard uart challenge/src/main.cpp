@@ -25,11 +25,6 @@ void delayMillis(unsigned long delayTime)
   }
 }
 
-unsigned char serialCheckTx()
-{
-  return(UCSR0A & _BV(UDRE0));
-}
-
 void setup() 
 {
   long stap = 16UL * (long)9600;
@@ -41,10 +36,8 @@ void PrintMessage(char Message[])
 {
   for (size_t i = 0; i < strlen(Message); i++)
   {
-    while (serialCheckTx() == 0)
-    {
-    }    
-    UDR0 = Message[i];  
+    while (!(UCSR0A & (1 << UDRE0))) {};
+    UDR0 = Message[i];
   }  
 }
 
