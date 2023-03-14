@@ -5,7 +5,7 @@
 using namespace std;
 
 
-Limousine::Limousine(string manufacturer, string model, int buildYear, string licensePlate, bool hasMinibar, double pricePerKm)
+Limousine::Limousine(string manufacturer, string model, int buildYear, string licensePlate, bool hasMinibar)
     : Car(manufacturer, model, buildYear, licensePlate, pricePerKm) 
 {
     this->hasMinibar = hasMinibar; 
@@ -14,7 +14,7 @@ Limousine::Limousine(string manufacturer, string model, int buildYear, string li
 
 double Limousine::Return(int kilometers)
 {
-    double price = Car::Return(kilometers);
+    double price = this->Car::Return(kilometers);
     needsCleaning = true;
     return price;
 }
@@ -24,12 +24,12 @@ void Limousine::Clean()
     needsCleaning = false;
 }
 
-bool Limousine::GetNeedsCleaning() 
+bool Limousine::GetNeedsCleaning() const 
 {
     return needsCleaning;
 }
 
-bool Limousine::GetHasMinibar() 
+bool Limousine::GetHasMinibar() const
 {
     return hasMinibar;
 }

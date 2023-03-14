@@ -33,17 +33,27 @@ void addTestDataToAdministration(RentalAdministration* administration)
 
 static const Car* GetCurrentCar(const RentalAdministration* administration, size_t carNumber)
 {
-    // pseudo code:
-    if (carNumber > administration->GetCars().size())
+    vector<Car*> CarVector = administration->GetCars();
+
+    if (carNumber > CarVector.size())
     {
         cout << "\nError: car with car number " << carNumber << " does not exist!\n";
         return NULL;
     }
 
-    return NULL; // return the correct car here
+    for (size_t i = 0; i < CarVector.size(); i++)
+    {
+       if (carNumber == i)
+       {
+        return CarVector[i];
+       }
+       
+    }
+    
+    //return NULL; // return the correct car here
 }
 
-static void printCars(const RentalAdministration* administration)
+static void PrintCars(const RentalAdministration* administration)
 {
     // pseudo code (i.e.: not real C++ code):
     // int i = 1;
@@ -52,6 +62,13 @@ static void printCars(const RentalAdministration* administration)
     //     cout << "\n" << i << ": " << car.ToString;
     //     i++;
     // }
+    vector<Car*> CarVector = administration->GetCars();
+
+    for (size_t i = 0; i < CarVector.size(); i++)
+    {
+        cout << "\n" << i << ": " << CarVector[i]->ToString();
+    }
+    
 }
 
 static size_t selectCar(const RentalAdministration* administration)
@@ -68,12 +85,37 @@ static size_t selectCar(const RentalAdministration* administration)
 static void rentCar(RentalAdministration* administration, size_t carNumber)
 {
     const Car* curr = GetCurrentCar(administration, carNumber);
+    
+    if (administration->RentCar(curr->GetLicencePlate()))
+    {
+        cout << "Car " << curr->ToString() << " rented";
+    }
+    else
+    {
+        cout << "ERROR: car " << curr->ToString() << " is not available!";
+    }
+    
     // rent this car, functionality comparable to btnRent_Click
+
+    
 }
 
 static void returnCar(RentalAdministration* administration, size_t carNumber)
 {
     const Car* curr = GetCurrentCar(administration, carNumber);
+
+    try
+    {
+        double costs = administration->ReturnCar(curr->GetLicencePlate(), curr->GetKilometers());
+        cout << "Car " << curr->ToString() << " returned, price: " << costs;
+
+    }
+    catch(invalid_argument exception)
+    {
+        cout << "ERROR: car " << curr->ToString() << " - " << exception.what();
+    }
+    
+    
     // return this car, do handle exceptions
 }
 
@@ -123,7 +165,7 @@ int main( void )
         switch (choice)
         {
         case '1' :
-            printCars(&administration);
+            PrintCars(&administration);
             break;
         case '2' :
             carNumber = selectCar(&administration);

@@ -3,10 +3,9 @@ using namespace std;
 
 #include "Car.h"
 
-Car::Car(string manufacturer, string model, 
-    int buildYear, string licencePlate, double pricePerKm) 
+Car::Car(string manufacturer, string model, int buildYear, string licencePlate, double pricePerKm) 
 {
-    if ((manufacturer.empty() == true) || (model.empty() == true) || (licencePlate.empty() == true))
+    if ((manufacturer.empty()) || (model.empty()) || (licencePlate.empty()))
     {
         throw invalid_argument("One or more arguments are not valid!");
     }
@@ -45,7 +44,7 @@ double Car::Return(int kilometers)
     {
         throw invalid_argument("car was not rented");
     }
-    if (kilometers < kilometers)
+    if (kilometers < this->kilometers)
     {
         throw invalid_argument("car is returned with less kilometers than it had" + kilometers);
     }
@@ -56,36 +55,36 @@ double Car::Return(int kilometers)
     return cost;
 }
 
-string Car::GetManufacturer() 
+string Car::GetManufacturer() const
 {
     return manufacturer;
 }
-string Car::GetModel() 
+string Car::GetModel() const
 {
     return model;
 }
-int Car::GetBuildYear() 
+int Car::GetBuildYear() const 
 {
     return buildYear;
 }
-string Car::GetLicencePlate() 
+string Car::GetLicencePlate() const
 {
     return licencePlate;
 }
-int Car::GetKilometers() 
+int Car::GetKilometers() const
 {
     return kilometers;
 }
-bool Car::GetIsAvailable() 
+bool Car::GetIsAvailable() const
 {
     return isAvailable;
 }
-bool Car::GetNeedsCleaning() 
+bool Car::GetNeedsCleaning() const
 {
-    return NeedsCleaning;
+    return needsCleaning;
 }
 
-string Car::ToString()
+string Car::ToString() const
 {
     return manufacturer +
             " - " + model +

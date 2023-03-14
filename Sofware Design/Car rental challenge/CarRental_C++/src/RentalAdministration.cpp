@@ -9,7 +9,7 @@ RentalAdministration::RentalAdministration()
 
 bool RentalAdministration::Add(Car *car) 
 {
-    if (car == NULL)
+    if (car == nullptr)
     {
         throw invalid_argument("Car cannot be NULL!");
     }
@@ -18,13 +18,13 @@ bool RentalAdministration::Add(Car *car)
     {
         return false;
     }
-    Cars.insert(car);
+    Cars.push_back(car);
     return true;
 }
 
 bool RentalAdministration::RentCar(string licencePlate)
 {
-    if (licencePlate.empty() == true)
+    if (licencePlate.empty())
     {
         throw invalid_argument("LicencePlate cannot be NULL!");
     }
@@ -35,7 +35,7 @@ bool RentalAdministration::RentCar(string licencePlate)
 
 double RentalAdministration::ReturnCar(string licencePlate, int kilometers)
 {
-    if(licencePlate.empty() == true)
+    if(licencePlate.empty())
     {
         throw invalid_argument("LicencePlate cannot be NULL!");
     }
@@ -49,7 +49,7 @@ double RentalAdministration::ReturnCar(string licencePlate, int kilometers)
     return car->Return(kilometers);
 }
 
-void CleanCar(string licencePlate)
+void RentalAdministration::CleanCar(string licencePlate)
 {
     if (licencePlate.empty() == true)
     {
@@ -62,10 +62,10 @@ void CleanCar(string licencePlate)
 
 Car* RentalAdministration::FindCar(string licencePlate)
 {
-    for (int i = 0; i < Cars.size(); i++) {
-        if (Cars[i].GetLicencePlate() == licencePlate)
+    for (long unsigned int i = 0; i < Cars.size(); i++) {
+        if (Cars[i]->GetLicencePlate() == licencePlate)
         {
-            return &Cars[i];
+            return Cars[i];
         }
     }
     return NULL;
@@ -74,9 +74,14 @@ Car* RentalAdministration::FindCar(string licencePlate)
 Car* RentalAdministration::FindCarWithException(string licencePlate)
 {
     Car *car = FindCar(licencePlate);
-    if (car == NULL)
+    if (car == nullptr)
     {
         throw new invalid_argument(licencePlate + "no car with this licenceplate in administration");
     }
     return car;
+}
+
+const vector<Car*> RentalAdministration::GetCars() const
+{
+    return Cars;
 }
