@@ -1,0 +1,45 @@
+#include <Arduino.h>
+
+#define RX_PIN 2
+#define BAUD_RATE 9600
+#define BIT_DELAY_US 104 // = 1000000 / BAUD_RATE / 10 (10 bits per byte)
+String RecievedData = "";
+bool StartBitRecieved = false;
+int charactersrecieved = 0;
+
+void setup() {
+  pinMode(RX_PIN, INPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  byte data = 0;
+  bool is_start_bit = false;
+  bool is_stop_bit = false;
+  // Wait for start bit
+  while (digitalRead(RX_PIN) == HIGH) {}
+  delayMicroseconds(BIT_DELAY_US / 2); // Move to middle of start bit
+  is_start_bit = true;
+  //Serial.println("Start bit recieved!");
+
+  // Read data bits
+  for (int j = 0; j < 8; j++) {
+    data |= (digitalRead(RX_PIN) << j);
+    delayMicroseconds(BIT_DELAY_US);
+  }
+
+  // Read stop bit
+  is_stop_bit = digitalRead(RX_PIN);
+  delayMicroseconds(BIT_DELAY_US);
+  //Serial.println("Stop bit recieved!");
+
+  // Process received byte
+  if (is_start_bit && is_stop_bit) {
+    charactersrecieved++;
+    char c = char(data); // Convert byte to char
+    Serial.println(c); // Output to serial monitor
+    RecievedData.concat(data);
+  }
+  //Serial.println(RecievedData);
+}
+

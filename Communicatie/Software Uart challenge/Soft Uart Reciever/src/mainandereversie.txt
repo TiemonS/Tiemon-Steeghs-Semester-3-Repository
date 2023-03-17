@@ -1,0 +1,27 @@
+String receivedData = "";
+
+void setup() {
+  Serial.begin(BAUD_RATE);
+  pinMode(RX_PIN, INPUT);
+}
+
+void loop() {
+  if (Serial.available()) {
+    char ch = Serial.read();
+    Serial.print(ch);
+  }
+  
+  if (digitalRead(RX_PIN) == LOW) {
+    // start bit detected
+    delayMicroseconds(BIT_DELAY_US / 2);
+    byte receivedByte = 0;
+    for (int i = 0; i < 8; i++) {
+      receivedByte |= (digitalRead(RX_PIN) << i);
+      delayMicroseconds(BIT_DELAY_US);
+    }
+    if (digitalRead(RX_PIN) == HIGH) {
+      // stop bit detected
+      receivedData += (char)receivedByte;
+    }
+  }
+}
