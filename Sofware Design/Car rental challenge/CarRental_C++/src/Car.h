@@ -17,17 +17,16 @@ private:
     int kilometers;
     bool isAvailable;
 
-    bool needsCleaning;
-
 public:
 
     Car(string manufacturer, string model, int buildYear, string licencePlate, double pricePerKm);
-    
+    virtual ~Car() {}
+
     bool Rent();
     double Return(int kilometers);
-    virtual void Clean();
+    virtual void Clean() = 0;
 
-    virtual bool NeedsCleaning();
+    virtual bool NeedsCleaning() const = 0;
 
     string GetManufacturer() const;
     string GetModel() const;
@@ -35,8 +34,6 @@ public:
     string GetLicencePlate() const;
     int GetKilometers() const;
     bool GetIsAvailable() const;
-
-    bool GetNeedsCleaning() const;
 
     string ToString() const;
 };

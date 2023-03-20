@@ -1,12 +1,14 @@
 #include "Limousine.h"
 #include "Car.h"
 #include <stdexcept>
+#include <iostream>
+#include <string>
 
 using namespace std;
 
 
 Limousine::Limousine(string manufacturer, string model, int buildYear, string licensePlate, bool hasMinibar)
-    : Car(manufacturer, model, buildYear, licensePlate, pricePerKm) 
+    : Car(manufacturer, model, buildYear, licensePlate, 2.5) 
 {
     this->hasMinibar = hasMinibar; 
     this->needsCleaning = false; 
@@ -24,7 +26,7 @@ void Limousine::Clean()
     needsCleaning = false;
 }
 
-bool Limousine::GetNeedsCleaning() const 
+bool Limousine::NeedsCleaning() const 
 {
     return needsCleaning;
 }

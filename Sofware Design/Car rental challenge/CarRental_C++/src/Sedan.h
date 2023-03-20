@@ -17,7 +17,7 @@ public:
     Sedan(string manufacturer, string model, int buildYear, 
     string licencePlate, bool hasTowbar); 
     void Clean();
-   
+    bool NeedsCleaning() const;
 };
 
 #endif

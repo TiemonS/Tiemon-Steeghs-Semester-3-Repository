@@ -9,7 +9,8 @@ TARGET=CarRental
 all: $(TARGET)
 
 $(TARGET): $(SOURCES) $(HEADERS)
-	@$(CXX) $(CXXFLAGS) -o $@ $(SOURCES)
+	$(CXX) $(CXXFLAGS) -o $@ $(SOURCES)
+	valgrind --leak-check=full --show-leak-kinds=all -s ./$(TARGET)
 
 clean:
 	@rm -f $(TARGET)

@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <string>
+#include "Car.h"
 using namespace std;
 
 #ifndef LIMOUSINE_H
@@ -18,7 +19,8 @@ public:
     double Return(int kilometers);
     void Clean();
 
-    bool GetNeedsCleaning() const;
+
+    bool NeedsCleaning() const;
     bool GetHasMinibar() const;
 };
 

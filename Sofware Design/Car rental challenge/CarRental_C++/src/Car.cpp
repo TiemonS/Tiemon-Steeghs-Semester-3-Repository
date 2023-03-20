@@ -1,4 +1,6 @@
 #include <stdexcept>
+#include <string>
+#include <iostream>
 using namespace std;
 
 #include "Car.h"
@@ -78,10 +80,6 @@ int Car::GetKilometers() const
 bool Car::GetIsAvailable() const
 {
     return isAvailable;
-}
-bool Car::GetNeedsCleaning() const
-{
-    return needsCleaning;
 }
 
 string Car::ToString() const

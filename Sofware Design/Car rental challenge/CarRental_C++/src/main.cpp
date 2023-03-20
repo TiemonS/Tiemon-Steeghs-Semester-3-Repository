@@ -50,7 +50,7 @@ static const Car* GetCurrentCar(const RentalAdministration* administration, size
        
     }
     
-    //return NULL; // return the correct car here
+    return NULL; // return the correct car here
 }
 
 static void PrintCars(const RentalAdministration* administration)
@@ -110,7 +110,7 @@ static void returnCar(RentalAdministration* administration, size_t carNumber)
         cout << "Car " << curr->ToString() << " returned, price: " << costs;
 
     }
-    catch(invalid_argument exception)
+    catch(invalid_argument& exception)
     {
         cout << "ERROR: car " << curr->ToString() << " - " << exception.what();
     }
@@ -122,13 +122,33 @@ static void returnCar(RentalAdministration* administration, size_t carNumber)
 static void printIfCarNeedsCleaning(const RentalAdministration* administration, size_t carNumber)
 {
     const Car* curr = GetCurrentCar(administration, carNumber);
+    if (curr->NeedsCleaning())
+    {
+        cout << curr->GetLicencePlate() << "Car needs cleaning!";
+    }
+    else
+    {
+        cout << curr->GetLicencePlate() << "Car does not need cleaning!";
+    }
+
     // print if this car needs cleaning
 }
 
 static void cleanCar(RentalAdministration* administration, size_t carNumber)
 {
     const Car* curr = GetCurrentCar(administration, carNumber);
+    administration->CleanCar(curr->GetLicencePlate());
     // clean this car, see: btnClean_Click
+}
+
+static void freeAdministration(RentalAdministration* administration)
+{
+    vector<Car*> CarVector = administration->GetCars();
+    for (size_t i = 0; i < CarVector.size(); i++)
+    {
+        Car* car = CarVector[i];
+        delete car;
+    }
 }
 
 
@@ -184,6 +204,7 @@ int main( void )
             break;
 
         case '9' :
+            freeAdministration(&administration);
             quit = true;
             break;
         default:

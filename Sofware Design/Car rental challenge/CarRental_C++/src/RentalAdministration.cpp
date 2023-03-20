@@ -1,5 +1,7 @@
 #include "RentalAdministration.h"
-
+#include "Car.h"
+#include <iostream>
+#include <string>
 #include <stdexcept>
 using namespace std;
 
@@ -14,7 +16,7 @@ bool RentalAdministration::Add(Car *car)
         throw invalid_argument("Car cannot be NULL!");
     }
 
-    if (FindCar(car->GetLicencePlate()) != NULL)
+    if (FindCar(car->GetLicencePlate()) != nullptr)
     {
         return false;
     }
