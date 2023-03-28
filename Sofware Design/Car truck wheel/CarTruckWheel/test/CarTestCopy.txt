@@ -1,0 +1,90 @@
+#include "Car.h"
+
+#include <gtest/gtest.h>
+#include <stdexcept>
+#include <string>
+
+class CarTest : public ::testing::Test
+{
+
+protected:
+    CarTest() 
+    { 
+        car = new Car("Aston Martin Vanquish", "Alloy", 20, 4); 
+        car2 = new Car("Ferrari enzo", "Alloy", 18, 4); 
+    }
+
+    virtual ~CarTest()
+    {
+        delete car;
+        delete car2;
+        car = NULL;
+        car2 = NULL;
+    }
+
+    void CheckWheels(int n);// example of a method within the cartest class
+
+
+    Car* car;
+    Car* car2;
+};
+
+//de constructor van car testen
+TEST_F(CarTest, ConstructorTest) {
+    EXPECT_EQ(car->GetModel(), "Aston Martin Vanquish");
+    EXPECT_EQ(car->GetNrWheels(), 4);
+    EXPECT_THROW(Car("Test Model", "Test Material", 0, 4), std::out_of_range);
+    EXPECT_THROW(Car("Test Model", "Test Material", 16, 1), std::out_of_range);
+}
+
+TEST_F(CarTest, CarCopyConstructorTest) 
+{
+    car->SetLicencePlate("AB-1234-CD");
+    Car* CopyCar = car;
+    EXPECT_EQ(CopyCar->GetModel(), car->GetModel());
+    EXPECT_EQ(CopyCar->GetNrWheels(), car->GetNrWheels());
+    EXPECT_EQ(CopyCar->GetLicencePlate(), car->GetLicencePlate());
+    EXPECT_EQ(CopyCar->GetWheel(0)->GetDiameter(), car->GetWheel(0)->GetDiameter());
+}
+
+// TEST_F(CarTest, CarAssignmentOperatorTest) 
+// {
+//     Car* CopyCar;
+//     CopyCar = car;
+
+//     EXPECT_EQ(CopyCar->GetModel(), car->GetModel());
+//     EXPECT_EQ(CopyCar->GetNrWheels(), car->GetNrWheels());
+//     EXPECT_EQ(CopyCar->GetLicencePlate(), car->GetLicencePlate());
+//     EXPECT_EQ(CopyCar->GetWheel(0)->GetDiameter(), car->GetWheel(0)->GetDiameter());
+// }
+
+TEST_F(CarTest, GetWheelTest) 
+{
+    Wheel* wheel = new Wheel(20, "Alloy");
+    EXPECT_EQ(car->GetWheel(0), wheel);
+    EXPECT_THROW(car->GetWheel(-1), std::out_of_range);
+    EXPECT_THROW(car->GetWheel(5), std::out_of_range);
+    delete(wheel);
+}
+
+//de removewheel methode testen
+//er wordt hier weggehaald uit de car vervolgens worden er drie dingen gecontrolleerd
+// 1. Of het aantal wielen daadwerkelijk is verminder
+// 2. Of hij een exceptie gooit bij een index van -1
+// 3. Of hij een exceptie gooit bij een index evengroot als het totaal aantal wielen
+TEST_F(CarTest, RemoveWheelTest) {
+    int nrWheels = car->GetNrWheels();
+    car->RemoveWheel(1);
+    EXPECT_EQ(car->GetNrWheels(), nrWheels - 1);
+    EXPECT_THROW(car->RemoveWheel(-1), std::out_of_range);
+    EXPECT_THROW(car->RemoveWheel(nrWheels), std::out_of_range);
+}
+
+TEST_F(CarTest, AddWheelTest) 
+{
+    int nrWheels = car->GetNrWheels();
+    car->AddWheel(15, "Steel");
+    EXPECT_EQ(car->GetNrWheels(), nrWheels + 1);
+    EXPECT_EQ(car->GetWheel(4)->GetDiameter(), 15);
+    EXPECT_EQ(car->GetWheel(4)->GetMaterial(), "Steel");
+}
