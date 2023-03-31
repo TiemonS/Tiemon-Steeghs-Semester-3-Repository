@@ -1,11 +1,11 @@
 #include <Arduino.h>
 
-#define TX_PIN 2
+#define TX_PIN 3
 #define BAUD_RATE 9600
 #define BIT_DELAY_US 104 // = 1000000 / BAUD_RATE / 10 (10 bits per byte)
 String data = "t";
 
-unsigned long CurrentMicros;
+int CurrentMicros;
 
 void SendCharacter(byte ch);
 void Micros_Bit_Delay();
@@ -40,8 +40,6 @@ void SendCharacter(byte ch)
   CurrentMicros = micros();
   digitalWrite(TX_PIN, HIGH); // stop bit
   Micros_Bit_Delay();
-
-  delay(500);
 }
 
 void Micros_Bit_Delay() 
