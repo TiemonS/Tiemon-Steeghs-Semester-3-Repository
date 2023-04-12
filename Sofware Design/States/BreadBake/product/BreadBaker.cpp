@@ -36,6 +36,7 @@ bool BreadBaker::Pulse()
 // parameter name in comment to prevent compiler warning as it is unused for now
 void BreadBaker::HandleEvent(Events receivedEvent)
 {
+    int ProgramStartDelay;
     //de groote switchcase die de verschillende events die binnenkomen verwerkt
     switch (receivedEvent)
     {
@@ -45,29 +46,38 @@ void BreadBaker::HandleEvent(Events receivedEvent)
         {
         case States::STANDBY:
             state = States::PROGRAM_PLAIN;
-             std::cout << "Current program: PROGRAM_PLAIN" << "\n";
+            std::cout << "Current program: " << state << " - PROGRAM_PLAIN " << "Lenght: 4 u 50 min"<<"\n";
             break;
         case States::PROGRAM_PLAIN:
             state = States::PROGRAM_BREAD_PLUS;
-             std::cout << "Current program: PROGRAM_BREAD_PLUS" << "\n";
+            std::cout << "Current program: " << state << " - PROGRAM_BREAD_PLUS " << "Lenght: 4 u 50 min"<<"\n";
             break;
         case States::PROGRAM_BREAD_PLUS:
             state = States::PROGRAM_RAPID;
-            std::cout << "Current program: PROGRAM_RAPID" << "\n";
+            std::cout << "Current program: " << state << " - PROGRAM_RAPID " << "Lenght: 1 u 55 min"<<"\n";
             break;
         case States::PROGRAM_RAPID:
             state = States::PROGRAM_DOUGH;
-            std::cout << "Current program: PROGRAM_DOUGH" << "\n";
+            std::cout << "Current program: " << state << " - PROGRAM_DOUGH " << "Lenght: 2 u 20 min"<<"\n";
             break;
         case States::PROGRAM_DOUGH:
             state = States::PROGRAM_BAKE;
-            std::cout << "Current program: PROGRAM_BAKE" << "\n";
+            std::cout << "Current program: " << state << " - PROGRAM_BAKE " << "Lenght: 30 - 90 min"<<"\n";
             break;
         case States::PROGRAM_BAKE:
             state = States::STANDBY;
             std::cout << "Current program: STANDBY" << "\n";
             break;
         }
+        break;
+    case TIMER_UP_BUTTON_PRESSED:
+        ProgramStartDelay += 10;
+        break;
+    case TIMER_DOWN_BUTTON_PRESSED:
+        ProgramStartDelay -= 10;
+        break;
+    case MENU_BUTTON_LONG_PRESSED:
+        state = States::STANDBY;
         break;
     default:
         break;
