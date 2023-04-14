@@ -32,6 +32,8 @@ void SetupTimer()
   //Het instellen van de prescaler timer van timer 2 op het TIMx_PSC register (Pagina 664)
   TIM2->PSC =  (SystemCoreClock / 1000000) - 1; 
   
+  //De auto reload value is de waarde die bepaalt wanneer de update event wordt gegenereerd. Er wordt steeds getelt tot dat de count bereikt wordt.
+  //TIMx_ARR Pagina 664 Formule: T = (PSC + 1) * (ARR + 1) / f_clock
   TIM2->ARR = 20000;
 
   // Het instellen van de timer2 capture/compare modus als PWM output TIMx_CCMR1 register (Pagina 656)
@@ -53,19 +55,7 @@ void SetupTimer()
   //TIM2->CCR1 = 1700; //De servo op kanaal 1 van timer 2 naar neutral zetten
   
   GPIOA->MODER = (GPIOA->MODER & ~GPIO_MODER_MODER0) | (0b10 << GPIO_MODER_MODER0_Pos); //Pib PA0 (Servo) instellen als alternatieve functie
-  GPIOA->AFR[0] = (GPIOA->AFR[0] & ~GPIO_AFRL_AFRL0) | (0b0001 << GPIO_AFRL_AFRL0_Pos);
-}
-
-void SetupTimerKeesEditie() 
-{
-  RCC->APB1ENR |= RCC_APB1ENR_TIM2EN; // enable timer 2
-  GPIOA->AFR[0] = (GPIOA->AFR[0] & ~GPIO_AFRL_AFRL0) | (0b0001 << GPIO_AFRL_AFRL0_Pos);  // alternate function low register -> AF1
-  TIM2->PSC =  (SystemCoreClock / 1000000) - 1;                                                                        // prescaler
-  TIM2->ARR = 20000;                                                                     // auto-reload-register
-  TIM2->CCMR1 = (TIM2->CCMR1 & ~TIM_CCMR1_OC1M_0) | TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2;     // capture compare mode register (keeps counting up until CNT > CCR)
-  TIM2->CCER |= TIM_CCER_CC1E;               // capture compare register (enable channel 1)
-  GPIOA->MODER = (GPIOA->MODER & ~GPIO_MODER_MODER0) | (0b10 << GPIO_MODER_MODER0_Pos);  // pin PA -> alternate function mode
-  TIM2->CR1 |= TIM_CR1_CEN;                     // control register -> counter enabled
+  GPIOA->AFR[0] = (GPIOA->AFR[0] & ~GPIO_AFRL_AFRL0) | (0b0001 << GPIO_AFRL_AFRL0_Pos); //de correcte alternate function instellen (AFR 1) GPIOx_AFRL register pagina 241
 }
 
 void LedModi(int Modi, int Speed) 

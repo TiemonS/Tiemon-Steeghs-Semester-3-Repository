@@ -1,0 +1,33 @@
+#include <Arduino.h>
+
+const int EncoderPinA = 7;
+const int EncoderPinB = 8;
+
+unsigned long StartMillis;
+unsigned long Verschil = 0;
+bool ReadStart = false;
+
+void setup() {
+  pinMode(EncoderPinA, INPUT);
+  pinMode(EncoderPinB, INPUT);
+
+  Serial.begin(9600);
+}
+
+void loop() {
+  Serial.println(digitalRead(EncoderPinA));
+  // while (digitalRead(EncoderPinA) == HIGH)
+  // {
+  //   if (!ReadStart)
+  //   {
+  //     StartMillis = millis();
+  //     ReadStart = true;
+  //   }
+  // }
+  // if (digitalRead(EncoderPinA) == LOW)
+  // {
+  //   Verschil = millis() - StartMillis;
+  //   Serial.println(Verschil);
+  //   ReadStart = false;
+  // }
+}
