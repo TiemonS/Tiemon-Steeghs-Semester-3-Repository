@@ -12,6 +12,7 @@
 #include "IYeastTray.h"
 #include "Log.h"
 #include "States.h"
+#include "Program.h"
 
 class BreadBaker
 {
@@ -43,7 +44,14 @@ private:
     IStartButtonLed& startButton;
     IEventGenerator& eventGenerator;
     Log& log;
+
     States state;
+    Program selectedProgram;
+    int programNumber = 1;
+    int kneadCounter = 0;
+
+    void StartProgram(Program *selectedProgram); 
+    void UpdateProgram(Program *selectedProgram);
 };
 
 #endif
