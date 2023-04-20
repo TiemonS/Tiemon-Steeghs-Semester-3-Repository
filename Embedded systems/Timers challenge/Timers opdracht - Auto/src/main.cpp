@@ -58,6 +58,42 @@ void SetupTimer()
   GPIOA->AFR[0] = (GPIOA->AFR[0] & ~GPIO_AFRL_AFRL0) | (0b0001 << GPIO_AFRL_AFRL0_Pos); //de correcte alternate function instellen (AFR 1) GPIOx_AFRL register pagina 241
 }
 
+void SetupTimer2() 
+{
+
+  RCC->APB1ENR |= RCC_APB1ENR_TIM2EN; //Het aanzetten van de Timer 2 clock op het RCC_APB1ENR register (Pagina 154 in de datasheet)
+  
+  //Formule: f_timer = f_clock / (prescaler + 1) omgeschreven naar prescaler = (f_clock / f_timer) - 1
+  //Het instellen van de prescaler timer van timer 2 op het TIMx_PSC register (Pagina 664)
+  TIM2->PSC =  (SystemCoreClock / 1000000) - 1; 
+  
+  //De auto reload value is de waarde die bepaalt wanneer de update event wordt gegenereerd. Er wordt steeds getelt tot dat de count bereikt wordt.
+  //TIMx_ARR Pagina 664 Formule: T = (PSC + 1) * (ARR + 1) / f_clock
+  TIM2->ARR = 20000;
+
+  // Het instellen van de timer2 capture/compare modus als PWM output TIMx_CCMR1 register (Pagina 656)
+  // Hiervoor moeten bit 6 (OC1M2) and bit 5 (OC1M1) naar 1 en OC1M0 naar 0
+  TIM2->CCMR1 = (TIM2->CCMR1 & ~TIM_CCMR1_OC2M_0) | TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2;
+
+  //zet de preload aan om fouten te voorkomen, de nieuwe waardes die binnenkomen worden 
+  //gebuffered en pas geupdate als de timer de volgende waarde bereikt heeft
+  //TIM2->CCMR1 |= TIM_CCMR1_OC1PE; 
+
+  TIM2->CCER |= TIM_CCER_CC2E; // het aanzetten van de pwm capture/compare 1 output (Pagine 662)
+
+  //zorgt ervoor dat de polariteit van de uitvoer van het kanaal niet wordt omgekeerd
+  TIM2->CCER &= ~(TIM_CCER_CC2P_Msk | TIM_CCER_CC2NP_Msk);
+
+  // Enable Timer 2 counter
+  TIM2->CR1 |= TIM_CR1_CEN;
+
+  //TIM2->CCR1 = 1700; //De servo op kanaal 1 van timer 2 naar neutral zetten
+  
+  GPIOA->MODER = (GPIOA->MODER & ~GPIO_MODER_MODER1) | (0b10 << GPIO_MODER_MODER1_Pos); //Pib PA0 (Servo) instellen als alternatieve functie
+  GPIOA->AFR[0] = (GPIOA->AFR[0] & ~GPIO_AFRL_AFRL1) | (0b0001 << GPIO_AFRL_AFRL1_Pos); //de correcte alternate function instellen (AFR 1) GPIOx_AFRL register pagina 241
+  
+}
+
 void LedModi(int Modi, int Speed) 
 {
   switch (Modi)
@@ -104,11 +140,9 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
 
-
-
-
   //de methode waarin timer2 wordt ingesteld op kanaal 1
   SetupTimer();
+  SetupTimer2(); 
 
   //als eerste moet ik de PA0 PIN waarop ik de led heb aangelosten instellen op output
   //Zie GPIO port mode register 
@@ -148,14 +182,12 @@ int main(void)
       HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
     }
 
-    for (int i = 0; i <= 180; i++) {
-            TIM2->CCR1 = 1000 + (i * 11);
-            for (int j = 0; j < 500000; j++); // delay
-        }
-    for (int i = 180; i >= 0; i--) {
-        TIM2->CCR1 = 1000 + (i * 11);
-        for (int j = 0; j < 500000; j++); // delay
-    }
+    //1280 - 1480 Clockwise
+    //1480 - 1520 Stop
+    //1520 - 1720 Counter-clockwise
+    TIM2->CCR1 = 1600; 
+    TIM2->CCR2 = 1400; 
+
   }
 }
 
