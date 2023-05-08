@@ -49,6 +49,8 @@ private:
     Program selectedProgram;
     int programNumber = 1;
     int kneadCounter = 0;
+    int timerTime = 0;
+    int bakingTime = 30;
 
     void StartProgram(Program *selectedProgram); 
     void UpdateProgram(Program *selectedProgram);

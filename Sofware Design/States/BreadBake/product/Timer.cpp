@@ -32,6 +32,7 @@ void Timer::Set(uint64_t time)
     }
     Cleanup();
 
+
     uint64_t nrTicks = GetSimulatedTime(time);
     log.Debug("timer set to: %lu ms (%lu min  ==> simulated time: %lu ms)",
               time, SecToMSec(time), nrTicks);

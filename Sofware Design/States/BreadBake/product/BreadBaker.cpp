@@ -36,7 +36,6 @@ bool BreadBaker::Pulse()
 // parameter name in comment to prevent compiler warning as it is unused for now
 void BreadBaker::HandleEvent(Events receivedEvent)
 {
-    int ProgramStartDelay = 0;
     //de groote switchcase die de verschillende events die binnenkomen verwerkt
     switch (receivedEvent)
     {
@@ -68,14 +67,30 @@ void BreadBaker::HandleEvent(Events receivedEvent)
         }
         break;
     case TIMER_UP_BUTTON_PRESSED:
-        ProgramStartDelay += 10 MIN;
+        if (state = STANDBY)
+        {
+            timerTime += 10 MIN;
+        }
+        else if(state = PROGRAM_BAKING) 
+        {
+            bakingTime += 10 MIN;
+        }
+          
         break;
     case TIMER_DOWN_BUTTON_PRESSED:
-        ProgramStartDelay -= 10 MIN;
+        if (state = STANDBY)
+        {
+            timerTime -= 10 MIN;
+        }
+        else if(state = PROGRAM_BAKING) 
+        {
+            bakingTime -= 10 MIN;
+        }
         break;
     case MENU_BUTTON_LONG_PRESSED:
         state = States::STANDBY;
         timer.Cancel();
+        oven.Cancel();
         break;
     //start knop ingedrukt
     case START_BUTTON_PRESSED:
@@ -87,6 +102,9 @@ void BreadBaker::HandleEvent(Events receivedEvent)
         //elke keer als de timer voorbij is wordt het programma geupdate
         UpdateProgram(&selectedProgram);
         break;
+    case OVEN_DONE:
+        //als de oven klaar is met rising of baking wordt de updateprogram methode weer aangeroepen
+        UpdateProgram(&selectedProgram);
     default:
         break;
     }
@@ -98,30 +116,64 @@ void BreadBaker::StartProgram(Program *selectedProgram)
         {
         case 1:
             //PROGRAM_PLAIN
-            *selectedProgram = { 60 MIN, 20 MIN, 160 MIN, 50 MIN, true, false };
+            selectedProgram->waiting = 60 MIN;
+            selectedProgram->kneading = 20 MIN;
+            selectedProgram->rising = 160 MIN;
+            selectedProgram->baking = 50 MIN;
+            selectedProgram->addYeast = false;
+            selectedProgram->addExtras = false;
+            state = PROGRAM_WAITING;
+            display.SetCurrentTask(WAITING);
             break;
         case 2:
             //PROGRAM_BREAD_PLUS
-            *selectedProgram = { 60 MIN, 20 MIN, 160 MIN, 50 MIN, true, false };
+            selectedProgram->waiting = 60 MIN;
+            selectedProgram->kneading = 20 MIN;
+            selectedProgram->rising = 160 MIN;
+            selectedProgram->baking = 50 MIN;
+            selectedProgram->addYeast = false;
+            selectedProgram->addExtras = false;
+            state = PROGRAM_WAITING;
+            display.SetCurrentTask(WAITING);
             break;
         case 3:
             //PROGRAM_RAPID
-            *selectedProgram = { 0 MIN, 15 MIN, 60 MIN, 40 MIN, true, false };
+            selectedProgram->waiting = 0 MIN;
+            selectedProgram->kneading = 15 MIN;
+            selectedProgram->rising = 60 MIN;
+            selectedProgram->baking = 40 MIN;
+            selectedProgram->addYeast = false;
+            selectedProgram->addExtras = false;
+            state = PROGRAM_KNEADING;
+            display.SetCurrentTask(KNEADING);
             break;
         case 4:
             //PROGRAM_DOUGH
-            *selectedProgram = { 40 MIN, 20 MIN, 80 MIN, NULL, true, false };
+            selectedProgram->waiting = 40 MIN;
+            selectedProgram->kneading = 20 MIN;
+            selectedProgram->rising = 80 MIN;
+            selectedProgram->baking = 0 MIN;
+            selectedProgram->addYeast = false;
+            selectedProgram->addExtras = false;
+
+            state = PROGRAM_WAITING;
+            display.SetCurrentTask(WAITING);
             break;
         case 5:
             //PROGRAM_BAKE
-            *selectedProgram = { NULL, NULL, NULL, 0 MIN, true, false };
+            selectedProgram->waiting = 0 MIN;
+            selectedProgram->kneading = 0 MIN;
+            selectedProgram->rising = 0 MIN;
+            selectedProgram->baking = timerTime MIN;
+            selectedProgram->addYeast = false;
+            selectedProgram->addExtras = false;
+            state = PROGRAM_BAKING;
+            display.SetCurrentTask(WAITING);
             break;
         default:
             break;
         }
-        state = PROGRAM_WAITING;
         timer.Set(selectedProgram->waiting); 
-        display.SetCurrentTask(WAITING);
 }
 
 /* 
@@ -143,8 +195,10 @@ void BreadBaker::UpdateProgram(Program *selectedProgram)
         std::cout << kneadCounter << "\n";
         if(kneadCounter == selectedProgram->kneading / 60000) //elke knead duurt 1 min hier wordt het totaal vergeleken
         {
-            state = PROGRAM_RISING;
+            timer.Set(0);
+            kneadCounter = 0;
             display.SetCurrentTask(RISING);
+            state = PROGRAM_RISING;
         }  
         else if (kneadCounter % 2 == 0) //is het kneadcounter een even getal?, turn left
         {
@@ -160,15 +214,35 @@ void BreadBaker::UpdateProgram(Program *selectedProgram)
         }
         break;
     case PROGRAM_RISING:
-        /* code */
+        oven.StartRise(selectedProgram->rising); 
+        display.SetCurrentTask(RISING);
+
+        //kijken of het geselecteerde programma een baking fase heeft
+        if (selectedProgram->baking <= 0)
+        {   
+            state = PROGRAM_DONE;
+        }
+        else 
+        {
+            state = PROGRAM_BAKING; 
+        }
         break;
     case PROGRAM_BAKING:
-        /* code */
+        oven.StartBake(selectedProgram->baking);
+        display.SetCurrentTask(BAKING);
+        state = PROGRAM_DONE; 
         break;
     case PROGRAM_DONE:
-        /* code */
+        display.SetCurrentTask(DONE);
         break;
     default:
         break;
     }
 }
+
+//TODO
+
+//Weergave van het start van elk programma fixen
+
+//State diagram updaten
+

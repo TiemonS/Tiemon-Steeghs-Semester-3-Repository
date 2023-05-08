@@ -80,6 +80,6 @@ void Oven::SwitchOn(int timeInMinutes)
         throw std::logic_error("oven cannot be switched on without timer");
     }
 
-    timer->Set(timeInMinutes MIN);
+    timer->Set(timeInMinutes);
     isOn = true;
 }
