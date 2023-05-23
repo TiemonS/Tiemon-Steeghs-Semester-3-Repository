@@ -4,7 +4,6 @@
 enum States
 {
     STANDBY,
-    IN_PROGRAM,
     PROGRAM_WAITING,
     PROGRAM_KNEADING,
     PROGRAM_RISING,

@@ -47,13 +47,19 @@ private:
 
     States state;
     Program selectedProgram;
-    int programNumber = 1;
+    int programNumber = 0;
     int kneadCounter = 0;
     int timerTime = 0;
     int bakingTime = 30;
 
     void StartProgram(Program *selectedProgram); 
     void UpdateProgram(Program *selectedProgram);
+    void HandleStandbyState(Events receivedEvent);
+    void HandleWaitingState(Events receivedEvent);
+    void HandleKneadingState(Events receivedEvent);
+    void HandleRisingState(Events receivedEvent); 
+    void HandleBakingState(Events receivedEvent); 
+    void HandleDoneState(Events receivedEvent); 
 };
 
 #endif
