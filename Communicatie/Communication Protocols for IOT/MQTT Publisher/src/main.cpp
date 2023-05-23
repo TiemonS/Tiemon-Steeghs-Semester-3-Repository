@@ -64,10 +64,18 @@ void loop() {
 
   // Create MQTT message payload
   //String payload = "Motion: " + String(motion_value) + ", LDR: " + String(ldr_value);
-  String payload = String(motion_value) + String(motion_value);
+  //String payload = String(motion_value) + String(motion_value);
+
+  PayloadData payload;
+  payload.motionValue = motion_value;
+  payload.ldrValue = ldr_value;
+
+  // Publish payload as byte array
+  mqtt_client.publish(mqtt_topic, (const uint8_t*)&payload, sizeof(payload));
+
 
   // Publish MQTT message
-  mqtt_client.publish(mqtt_topic, payload.c_str());
+  //mqtt_client.publish(mqtt_topic, payload.c_str());
 
   //Wait for a moment
   delay(500);

@@ -46,16 +46,27 @@ void callback(char* topic, byte* payload, unsigned int length)
   Serial.print("Received message on topic: ");
   Serial.println(topic);
   Serial.print("Message: ");
-  for (int i = 0; i < length; i++)
-  {
-    Serial.print((char)payload[i]);
+  // Convert the received payload to the struct
+  PayloadData receivedPayload;
+  memcpy(&receivedPayload, payload, sizeof(receivedPayload));
+
+  //Check conditions and control the LED
+  if (receivedPayload.motionValue == 1 && receivedPayload.ldrValue < 500) {
+    digitalWrite(Led, HIGH); // Turn on the LED
+  } else {
+    digitalWrite(Led, LOW);  // Turn off the LED
   }
-  lastMessage = "";
-  for (int i = 0; i < length; i++)
-  {
-    lastMessage += (char)payload[i];
-  }
-  Serial.println();
+  // for (int i = 0; i < length; i++)
+  // {
+  //   Serial.print((char)payload[i]);
+  // }
+  // lastMessage = "";
+  // for (int i = 0; i < length; i++)
+  // {
+  //   lastMessage += (char)payload[i];
+  // }
+  Serial.println(receivedPayload.motionValue);
+  Serial.println(receivedPayload.ldrValue);
 }
 
 void setup()
@@ -63,7 +74,7 @@ void setup()
   pinMode(Led, OUTPUT);
 
   Serial.begin(9600);
-  digitalWrite(Led, HIGH);
+
   WiFi.begin(ssid, password);
   client.setServer(mqttServer, mqttPort);
   client.setCallback(callback);
