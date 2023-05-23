@@ -1,6 +1,6 @@
-<mxfile host="Electron" modified="2023-05-23T13:36:17.109Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.2.8 Chrome/112.0.5615.165 Electron/24.2.0 Safari/537.36" etag="BqqoX_5VtRcLCJ6Rpr2O" version="21.2.8" type="device">
+<mxfile host="Electron" modified="2023-05-23T14:40:46.990Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.2.8 Chrome/112.0.5615.165 Electron/24.2.0 Safari/537.36" etag="e-8TEziUIiBvXIXbYCK4" version="21.2.8" type="device">
   <diagram name="Pagina-1" id="tLsxebPHoMqLCGwJLSkC">
-    <mxGraphModel dx="3269" dy="2137" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="2494" dy="1672" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -334,7 +334,7 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="d3JRZ0Z-gsxvtp5kxETU-26" value="" style="swimlane;startSize=0;" parent="1" vertex="1">
-          <mxGeometry x="-1220" y="-70" width="1080" height="820" as="geometry" />
+          <mxGeometry x="-1220" y="-70" width="1136.46" height="820" as="geometry" />
         </mxCell>
         <mxCell id="d3JRZ0Z-gsxvtp5kxETU-27" value="IN_PROGRAM" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="d3JRZ0Z-gsxvtp5kxETU-26" vertex="1">
           <mxGeometry x="10" y="10" width="100" height="30" as="geometry" />
@@ -354,8 +354,8 @@
         <mxCell id="DwlNqA49wbPzXnXZkH1S-6" value="TIMER_TIMEOUT / HandleKneadingState()" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="d3JRZ0Z-gsxvtp5kxETU-26" vertex="1">
           <mxGeometry x="681.46" y="125" width="260" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="DwlNqA49wbPzXnXZkH1S-12" value="TIMER_TIMEOUT / HandleRisingState()" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="d3JRZ0Z-gsxvtp5kxETU-26" vertex="1">
-          <mxGeometry x="701.46" y="260" width="240" height="30" as="geometry" />
+        <mxCell id="DwlNqA49wbPzXnXZkH1S-12" value="TIMER_TIMEOUT&amp;nbsp; &lt;br&gt;[kneadCounter == selectedProgram.kneading / 60000]&lt;br&gt;&amp;nbsp;/ HandleRisingState()" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="d3JRZ0Z-gsxvtp5kxETU-26" vertex="1">
+          <mxGeometry x="726.46" y="250" width="310" height="60" as="geometry" />
         </mxCell>
         <mxCell id="DwlNqA49wbPzXnXZkH1S-13" value="OVEN_DONE / HandleBakingState()" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="d3JRZ0Z-gsxvtp5kxETU-26" vertex="1">
           <mxGeometry x="701.46" y="400" width="220" height="30" as="geometry" />
@@ -446,6 +446,18 @@
         </mxCell>
         <mxCell id="r_A-rZY8FQ4PbcmI-XpY-10" value="START_BUTTON_PRESSED [selectedProgram == Baking]/ StartProgram()" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="d3JRZ0Z-gsxvtp5kxETU-26">
           <mxGeometry x="30" y="490" width="430" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r_A-rZY8FQ4PbcmI-XpY-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="d3JRZ0Z-gsxvtp5kxETU-26" source="DwlNqA49wbPzXnXZkH1S-26" target="DwlNqA49wbPzXnXZkH1S-26">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="572" y="228" />
+              <mxPoint x="530" y="228" />
+              <mxPoint x="530" y="182" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r_A-rZY8FQ4PbcmI-XpY-12" value="TIMER_TIMEOUT / HandleRisingState()" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="d3JRZ0Z-gsxvtp5kxETU-26">
+          <mxGeometry x="290" y="190" width="240" height="30" as="geometry" />
         </mxCell>
         <mxCell id="DwlNqA49wbPzXnXZkH1S-11" value="MENU_BUTTON_LONG_PRESSED / State = Standby" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
           <mxGeometry x="-1590" y="-30" width="320" height="30" as="geometry" />
