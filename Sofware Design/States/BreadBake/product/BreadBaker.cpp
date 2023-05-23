@@ -67,22 +67,22 @@ void BreadBaker::HandleEvent(Events receivedEvent)
         }
         break;
     case TIMER_UP_BUTTON_PRESSED:
-        if (state = STANDBY)
+        if (state == STANDBY)
         {
             timerTime += 10 MIN;
         }
-        else if(state = PROGRAM_BAKING) 
+        else if(state == PROGRAM_BAKING) 
         {
             bakingTime += 10 MIN;
         }
           
         break;
     case TIMER_DOWN_BUTTON_PRESSED:
-        if (state = STANDBY)
+        if (state == STANDBY)
         {
             timerTime -= 10 MIN;
         }
-        else if(state = PROGRAM_BAKING) 
+        else if(state == PROGRAM_BAKING) 
         {
             bakingTime -= 10 MIN;
         }
