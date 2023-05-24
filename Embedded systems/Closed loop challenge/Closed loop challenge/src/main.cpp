@@ -8,11 +8,6 @@
 
 #include "CarTimer.h"
 
-#define PWM_PERIOD_US 20000  // PWM period in microseconds
-#define PWM_MIN_US 1000  // PWM minimum pulse width in microseconds
-#define PWM_MAX_US 2000  // PWM maximum pulse width in microseconds
-#define PWM_NEUTRAL_US 1500  // PWM neutral pulse width in microseconds
-
 void SystemClock_Config(void);
 void MX_FREERTOS_Init(void);
 
