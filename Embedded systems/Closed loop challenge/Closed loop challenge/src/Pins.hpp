@@ -8,6 +8,6 @@ const int LedPin; //PB4 - D5
 const int ButtonPin; //POC - A5
 
 const int SensorTriggerPin; //PB0 - A3
-const int SensorEchoPin; //PB6 - D10
+const int SensorEchoPin; //PC1 - A4
 
 #endif

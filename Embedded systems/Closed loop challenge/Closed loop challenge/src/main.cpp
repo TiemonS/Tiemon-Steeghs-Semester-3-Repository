@@ -70,22 +70,23 @@ extern "C" void EXTI0_IRQHandler(void)
     }
 }
 
+//De interrupt handle methode voor pin PC0 (SensorEchoPin)
 extern "C" void EXTI1_IRQHandler(void)
 {
     if (EXTI->PR & EXTI_PR_PR1) {
         EXTI->PR = EXTI_PR_PR1;   // Clear interrupt flag for EXTI1
-        // Handle the interrupt for PC1
-        // Your code here
+
+        //voor debuggen
         // snprintf(msgBuf, MSGBUFSIZE, "%s", "Interrupt triggered on PC1!\r\n");
         // HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
 
-        //is de knop ingedrukt?
+        //Is de echo pin hoog?
         if ((GPIOC->IDR & GPIO_IDR_1) != 0)
         {
         //sla de risingedge tijd op
         RisingEdgeTime = TIM4->CNT;
         }
-        //is de knop niet meer ingedrukt? Dus falling edge getriggered
+        //is de pin niet meer hoog? Dus falling edge getriggered
         else
         {
         //bereken het tijdsverschil tussen rising en falling edge
@@ -178,9 +179,9 @@ int main(void)
       TIM2->CCR2 = 1480; 
     }
 
-    int count = PulsTravelTime * 0.0343 / 2; //het berekenen van de afstand in cm (Tijd in uS * snelheid van geluid in uS/cm / 2 omdat het heen en weer gaat)
+    int distance = PulsTravelTime * 0.0343 / 2; //het berekenen van de afstand in cm (Tijd in uS * snelheid van geluid in uS/cm / 2 omdat het heen en weer gaat)
 
-    snprintf(msgBuf, MSGBUFSIZE, "%d", count);
+    snprintf(msgBuf, MSGBUFSIZE, "%d", distance);
     HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
   
     snprintf(msgBuf, MSGBUFSIZE, "%s", " cm\r\n");
