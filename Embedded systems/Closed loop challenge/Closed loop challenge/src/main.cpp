@@ -8,6 +8,11 @@
 
 #include "CarTimer.h"
 
+#define PWM_PERIOD_US 20000  // PWM period in microseconds
+#define PWM_MIN_US 1000  // PWM minimum pulse width in microseconds
+#define PWM_MAX_US 2000  // PWM maximum pulse width in microseconds
+#define PWM_NEUTRAL_US 1500  // PWM neutral pulse width in microseconds
+
 void SystemClock_Config(void);
 void MX_FREERTOS_Init(void);
 
@@ -92,16 +97,20 @@ extern "C" void EXTI1_IRQHandler(void)
 
 int main(void)
 {
+  //initialiseer methodes van het stm32 bord
   HAL_Init();
   SystemClock_Config();
   MX_GPIO_Init();
   MX_USART2_UART_Init();
 
-  //de methode waarin timer2 wordt ingesteld op kanaal 1
-  SetupTimer();
-  SetupTimer2();
-  SetupTriggerTimer(); 
-  timer4_channel1_setup();
+  //methodes voor het opzetten van de timers
+  SetupTimer2Channel1(); //De pwm output timer van servo 1
+  SetupTimer2Channel2(); //De pwm output timer van servo 2
+  SetupTimer3Channel3(); //De pwm output timer voor de sensor trigger
+  
+  //De pwm input timer, Deze werkt momenteel niet goed waardoor 
+  //ik alleen de count van deze timer gebruik voor de echo pin van de sensor
+  SetupTimer4Channel1(); 
 
   //als eerste moet ik de PA0 PIN waarop ik de led heb aangelosten instellen op output
   //Zie GPIO port mode register 

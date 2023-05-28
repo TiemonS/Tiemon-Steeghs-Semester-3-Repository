@@ -7,7 +7,7 @@
 
 #include "CarTimer.h"
 
-void SetupTimer() 
+void SetupTimer2Channel1() 
 {
 
   RCC->APB1ENR |= RCC_APB1ENR_TIM2EN; //Het aanzetten van de Timer 2 clock op het RCC_APB1ENR register (Pagina 154 in de datasheet)
@@ -42,7 +42,7 @@ void SetupTimer()
   GPIOA->AFR[0] = (GPIOA->AFR[0] & ~GPIO_AFRL_AFRL0) | (0b0001 << GPIO_AFRL_AFRL0_Pos); //de correcte alternate function instellen (AFR 1) GPIOx_AFRL register pagina 241
 }
 
-void SetupTimer2() 
+void SetupTimer2Channel2() 
 {
 
   RCC->APB1ENR |= RCC_APB1ENR_TIM2EN; //Het aanzetten van de Timer 2 clock op het RCC_APB1ENR register (Pagina 154 in de datasheet)
@@ -78,7 +78,7 @@ void SetupTimer2()
   
 }
 
-void SetupTriggerTimer() 
+void SetupTimer3Channel3() 
 {
   RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
 
@@ -101,100 +101,53 @@ void SetupTriggerTimer()
 
 }
 
-void SetupEchoTimer() 
+void SetupTimer4Channel1()
 {
   //TODO
   //voor de echo gebruik ik timer 4 channel 1 op pin PB6 (D10)
   //ik moet ook de interrupt van de timer gebruiken (geen normale interrupt)
   //met deze timer moet ik de afstand berekenen
 
-  // Inschakelen van de Timer 4-klok
+  // Enable the Timer 4 clock
   RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;
 
-  TIM4->PSC =  (SystemCoreClock / 1000000) - 1; 
+  // Set the prescaler to scale down the timer clock to 1 MHz
+  TIM4->PSC = (SystemCoreClock / 1000000) - 1; 
 
-  TIM4->CCMR1 = 0;    // Reset de capture/compare registers van kanaal 1
+  // Set CC1 channel as input with IC1 mapped on TI1
+  TIM4->CCMR1 |= TIM_CCMR1_CC1S_0;
 
-  TIM4->CCER |= TIM_CCER_CC1E; 
+  // Set CC1NP/CC1P bits to non-inverted/rising edge
+  TIM4->CCER &= ~(TIM_CCER_CC1NP | TIM_CCER_CC1P);
 
+  // Enable Capture/Compare 1 capture
+  TIM4->CCER |= TIM_CCER_CC1E;
+
+  // Set CC2 channel as input with IC2 mapped on TI1
+  TIM4->CCMR1 |= TIM_CCMR1_CC2S_1;
+
+  // Set CC2NP/CC2P bits to inverted/falling edge
+  TIM4->CCER &= ~TIM_CCER_CC2NP;
+  TIM4->CCER |= TIM_CCER_CC2P;
+
+  // Enable Capture/Compare 2 capture
+  TIM4->CCER |= TIM_CCER_CC2E;
+
+  // Set Trigger selection to Filtered Timer Input 1
+  TIM4->SMCR |= TIM_SMCR_TS_2 | TIM_SMCR_TS_0;
+
+  // Set Slave mode selection to Reset Mode
+  TIM4->SMCR |= TIM_SMCR_SMS_2;
+
+  // Enable the counter
   TIM4->CR1 |= TIM_CR1_CEN;
 
-  //GPIOB->MODER = (GPIOB->MODER & ~GPIO_MODER_MODER6) | (0b00 << GPIO_MODER_MODER6_Pos); //Pin PB6 (Sensor Echo) instellen als input pin
+  // Configure PB6 as alternate function mode
+  GPIOB->MODER = (GPIOB->MODER & ~GPIO_MODER_MODER6) | (0b10 << GPIO_MODER_MODER6_Pos);
+
+  // Set PB6 as alternate function AF2 (TIM4_CH1)
+  GPIOB->AFR[0] = (GPIOB->AFR[0] & ~GPIO_AFRL_AFRL6) | (0b0010 << GPIO_AFRL_AFRL6_Pos);
 }
-
-void setupPWMInput()
-{
-
-    // Enable TIM4 clock
-    RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;
-
-    TIM4->PSC =  (SystemCoreClock / 1000000) - 1; 
-
-    TIM4->ARR = 25000;
-
-    // Configure PB6 as alternate function mode
-    GPIOB->MODER = (GPIOB->MODER & ~GPIO_MODER_MODER6) | (0b10 << GPIO_MODER_MODER6_Pos);
-
-    // Set PB6 as alternate function AF2 (TIM4_CH1)
-    GPIOB->AFR[0] = (GPIOB->AFR[0] & ~GPIO_AFRL_AFRL6) | (0b0010 << GPIO_AFRL_AFRL6_Pos);
-
-    // Configure Timer 4 for PWM input mode
-    TIM4->CCMR1 |= TIM_CCMR1_CC1S_0;  // Set channel 1 as input, IC1 is mapped on TI1
-
-    // Configure the input filter and edge detection
-    TIM4->CCER |= TIM_CCER_CC1P;      // Capture on falling edge
-    TIM4->CCER |= TIM_CCER_CC1E;      // Enable capture on channel 1
-
-    TIM4->CCR3 = 150;
-
-    // Enable the timer
-    TIM4->CR1 |= TIM_CR1_CEN;
-}
-
-void timer4_channel1_setup()
-{
-    // Enable the Timer 4 clock
-    RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;
-
-    // Set the prescaler to scale down the timer clock to 1 MHz
-    TIM4->PSC = (SystemCoreClock / 1000000) - 1; 
-
-    // Set CC1 channel as input with IC1 mapped on TI1
-    TIM4->CCMR1 |= TIM_CCMR1_CC1S_0;
-
-    // Set CC1NP/CC1P bits to non-inverted/rising edge
-    TIM4->CCER &= ~(TIM_CCER_CC1NP | TIM_CCER_CC1P);
-
-    // Enable Capture/Compare 1 capture
-    TIM4->CCER |= TIM_CCER_CC1E;
-
-    // Set CC2 channel as input with IC2 mapped on TI1
-    TIM4->CCMR1 |= TIM_CCMR1_CC2S_1;
-
-    // Set CC2NP/CC2P bits to inverted/falling edge
-    TIM4->CCER &= ~TIM_CCER_CC2NP;
-    TIM4->CCER |= TIM_CCER_CC2P;
-
-    // Enable Capture/Compare 2 capture
-    TIM4->CCER |= TIM_CCER_CC2E;
-
-    // Set Trigger selection to Filtered Timer Input 1
-    TIM4->SMCR |= TIM_SMCR_TS_2 | TIM_SMCR_TS_0;
-
-    // Set Slave mode selection to Reset Mode
-    TIM4->SMCR |= TIM_SMCR_SMS_2;
-
-    // Enable the counter
-    TIM4->CR1 |= TIM_CR1_CEN;
-
-    // Configure PB6 as alternate function mode
-    GPIOB->MODER = (GPIOB->MODER & ~GPIO_MODER_MODER6) | (0b10 << GPIO_MODER_MODER6_Pos);
-
-    // Set PB6 as alternate function AF2 (TIM4_CH1)
-    GPIOB->AFR[0] = (GPIOB->AFR[0] & ~GPIO_AFRL_AFRL6) | (0b0010 << GPIO_AFRL_AFRL6_Pos);
-}
-
-
 
 void SetupEchoInterrupt() 
 {
