@@ -1,33 +1,29 @@
 /*
-Dit is de code van de "Hoofd master"
-Deze master is degene die ook de waardes uitprint die hij terugkrijgt van de andere master
-Het adres van deze master is 10
+Dit is de code van master 2, deze master print niks uit maar is voor de rest qua functionaliteit hetzelfde als de andere master
+Het adres van deze master is 8
 */
 
 #include <Arduino.h>
+#include <Wire.h>  // Include Wire if you're using I2C
+#include <SFE_MicroOLED.h>  // Include the SFE_MicroOLED library
+
 #include "bitmaps.hpp"
 
-#include <Wire.h>
-#include <SFE_MicroOLED.h>
-
-#define OLED_ADDR 0x3D
+#define OLED_ADDR 0x3C
 #define PIN_RESET 9  
 #define DC_JUMPER 1
-
-MicroOLED oled(PIN_RESET, DC_JUMPER);  //Het opzetten van het I2C Oled object
+MicroOLED oled(PIN_RESET, DC_JUMPER);    // I2C declaration
 bool BusAvialable = true;
 
 void drawTest();
-bool isBusAvailable();
-bool isBusAvailable2();
+
 void requestBusStatus();
+bool isBusAvailable2();
 
 void setup()
 {
-  delay(100); //een kleine delay om de display de tijd te geven om goed op te starten
-  Serial.begin(9600);
-
-  Wire.begin(10); //De master verbinden aan de bus met het adres 10
+  delay(100);
+  Wire.begin(8); //De master verbinden aan de bus met het adres 8
   Wire.onRequest(requestBusStatus); //de onrequest methode instellen
 
   oled.begin();    // Oled instellen
@@ -39,17 +35,16 @@ void setup()
 
 void loop()
 {
-  bool requestavialable = isBusAvailable2(); //het aanvragen aan de andere master of de bus vrij is
-  Serial.println(requestavialable);
-  if(requestavialable) 
+  //is de bus beschikbaar?
+  if(isBusAvailable2()) 
   {
+    //dan kan er data geschreven worden
     BusAvialable = false;
     drawTest();
     delay(100);
     BusAvialable = true;
-    delay(500);
+    delay(1000);
   }
-  //delay(1000);
 }
 
 void drawTest()
@@ -58,7 +53,7 @@ void drawTest()
     oled.clear(ALL);
     oled.clear(PAGE);
     //het tekenenen van een test bitmap
-    oled.drawBitmap(bender);
+    oled.drawBitmap(marco_borsato);
     //het updaten van de display
     oled.display();
 }
