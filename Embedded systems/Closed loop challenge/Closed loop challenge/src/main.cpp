@@ -260,3 +260,13 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif
+
+/////////TODO///////////////
+/*
+- Afstandmeting afwijking fixen (Die wordt veroorzaakt dat de count reset om de zoveel tijd, 
+dus door te controlleren of de begintijd niet groter is dan de eindtijd want dit zou niet moeten kunnen)
+
+- Abstractielaag verder afmaken
+
+- Code schoonmaken
+*/

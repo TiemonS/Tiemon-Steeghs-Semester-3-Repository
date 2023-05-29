@@ -16,7 +16,7 @@ public:
     void SetupEchoTimer();
     void SetupEchoInterrupt();
 
-    int CalculateDistance(int UnitOfLenght);
+    int CalculateDistance(int PulsTravelTime, int SpeedOfSound);
 };
 
 
