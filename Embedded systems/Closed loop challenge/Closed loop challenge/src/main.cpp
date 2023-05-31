@@ -7,6 +7,7 @@
 #include <stdio.h>
 
 #include "CarTimer.h"
+#include "PIDController.hpp"
 
 #define PWM_PERIOD_US 20000  // PWM period in microseconds
 #define PWM_MIN_US 1000  // PWM minimum pulse width in microseconds
@@ -28,6 +29,9 @@ bool servosEnabled = false;
 
 unsigned long RisingEdgeTime = 0;
 unsigned long PulsTravelTime = 0;
+
+PIDController pidController;
+
 
 void LedModi(int Modi, int Speed) 
 {
@@ -87,7 +91,8 @@ extern "C" void EXTI1_IRQHandler(void)
         RisingEdgeTime = TIM4->CNT;
         }
         //is de pin niet meer hoog? Dus falling edge getriggered
-        else
+        //en nog even kijken of de timer niet net gereset is
+        else if(TIM4->CNT > RisingEdgeTime)
         {
         //bereken het tijdsverschil tussen rising en falling edge
         PulsTravelTime = TIM4->CNT - RisingEdgeTime;
@@ -111,6 +116,9 @@ int main(void)
   //De pwm input timer, Deze werkt momenteel niet goed waardoor 
   //ik alleen de count van deze timer gebruik voor de echo pin van de sensor
   SetupTimer4Channel1(); 
+
+  pidController.SetSetpoint(10);
+
 
   //als eerste moet ik de PA0 PIN waarop ik de led heb aangelosten instellen op output
   //Zie GPIO port mode register 
@@ -167,22 +175,6 @@ int main(void)
       //HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
     }
 
-    // 1280 - 1480 Clockwise
-    // 1480 - 1520 Stop
-    // 1520 - 1720 Counter-clockwise
-    // TIM2->CCR1 = 1600; 
-    // TIM2->CCR2 = 1400; 
-    if (servosEnabled)
-    {
-      TIM2->CCR1 = 1600; 
-      TIM2->CCR2 = 1400; 
-    }
-    else 
-    {
-      TIM2->CCR1 = 1480; 
-      TIM2->CCR2 = 1480; 
-    }
-
     int distance = PulsTravelTime * 0.0343 / 2; //het berekenen van de afstand in cm (Tijd in uS * snelheid van geluid in uS/cm / 2 omdat het heen en weer gaat)
 
     snprintf(msgBuf, MSGBUFSIZE, "%d", distance);
@@ -190,6 +182,42 @@ int main(void)
   
     snprintf(msgBuf, MSGBUFSIZE, "%s", " cm\r\n");
     HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
+
+    pidController.SetInput(double(distance));
+
+    int motorMinSpeed = 1280; // Minimum motor speed
+    int motorMaxSpeed = 1720; // Maximum motor speed
+    double inputMin = 1.0; // Minimum input distance (cm)
+    double inputMax = 400.0; // Maximum input distance (cm)
+
+    pidController.Compute();
+
+    //int mapOutput = pidController.mapOutput(pidController.GetOutput(), motorMinSpeed, motorMaxSpeed, inputMin, inputMax);
+    int mapOutput = 1500 + pidController.GetOutput();
+    snprintf(msgBuf, MSGBUFSIZE, "%d", mapOutput);
+    HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
+
+    snprintf(msgBuf, MSGBUFSIZE, "%s", " Servo Val\r\n");
+    HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
+
+    TIM2->CCR1 = mapOutput;
+
+    // 1280 - 1480 Clockwise
+    // 1480 - 1520 Stop
+    // 1520 - 1720 Counter-clockwise
+    // TIM2->CCR1 = 1600; 
+    // TIM2->CCR2 = 1400; 
+    // if (servosEnabled)
+    // {
+    //   TIM2->CCR1 = 1600; 
+    //   TIM2->CCR2 = 1400; 
+    // }
+    // else 
+    // {
+    //   TIM2->CCR1 = 1480; 
+    //   TIM2->CCR2 = 1480; 
+    // }
+    HAL_Delay(25);
   }
 }
 
