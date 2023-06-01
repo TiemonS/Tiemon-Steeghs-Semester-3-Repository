@@ -26,6 +26,8 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "UIManager.hpp"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -52,6 +54,7 @@ extern UART_HandleTypeDef huart2;
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
+osThreadId_t UIThread;
 const osThreadAttr_t defaultTask_attributes = {
     .name = "defaultTask",
     .attr_bits = osThreadDetached,
@@ -69,6 +72,7 @@ const osThreadAttr_t defaultTask_attributes = {
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
+void UIHandle(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -102,6 +106,7 @@ void MX_FREERTOS_Init(void)
   /* Create the thread(s) */
   /* creation of defaultTask */
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+  UIThread = osThreadNew(UIHandle, NULL, &defaultTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -129,6 +134,22 @@ void StartDefaultTask(void *argument)
   }
   /* USER CODE END StartDefaultTask */
 }
+
+void UIHandle(void *argument) 
+{
+  UIManager uImanager;
+  uImanager.showOptions(&huart2);
+  /* USER CODE BEGIN StartDefaultTask */
+  /* Infinite loop */
+  for (;;)
+  {
+    uImanager.getUserInput(&huart2);
+    osDelay(25);
+  }
+  /* USER CODE END StartDefaultTask */
+}
+
+
 
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */

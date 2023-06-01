@@ -30,6 +30,8 @@ public:
     PIDController();
     ~PIDController();
 
+    int clamp(int value, int minValue, int maxValue);
+
     /*De PID controller update methode. Hierin wordt als eerste de error berekend en daarna de PID Output
     De PID output is wordt dan weer berekend aan de hand van de controller parameters.*/
     void Compute(); 

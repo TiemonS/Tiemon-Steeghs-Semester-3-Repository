@@ -8,6 +8,9 @@
 
 #include "CarTimer.h"
 #include "PIDController.hpp"
+#include "ServoMotor.hpp"
+#include "DistanceSensor.hpp"
+#include "UIManager.hpp"
 
 #define PWM_PERIOD_US 20000  // PWM period in microseconds
 #define PWM_MIN_US 1000  // PWM minimum pulse width in microseconds
@@ -31,7 +34,7 @@ unsigned long RisingEdgeTime = 0;
 unsigned long PulsTravelTime = 0;
 
 PIDController pidController;
-
+UIManager uImanager;
 
 void LedModi(int Modi, int Speed) 
 {
@@ -100,6 +103,12 @@ extern "C" void EXTI1_IRQHandler(void)
     }
 }
 
+void sendUARTMessage(UART_HandleTypeDef *huart, const char *message) {
+    char msgBuf[MSGBUFSIZE];
+    snprintf(msgBuf, MSGBUFSIZE, "%s", message);
+    HAL_UART_Transmit(huart, (uint8_t*)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
+  }
+
 int main(void)
 {
   //initialiseer methodes van het stm32 bord
@@ -159,6 +168,13 @@ int main(void)
   EXTI->IMR |= EXTI_IMR_MR1;     // EXTI1 Unmask
   NVIC_EnableIRQ(EXTI1_IRQn);    // Enable the EXTI1 interrupt in the NVIC
 
+  // ES Course Comments: Uncomment the three lines below to enable FreeRTOS.
+  osKernelInitialize(); /* Call init function for freertos objects (in freertos.c) */
+  MX_FREERTOS_Init();
+  osKernelStart(); /* Start scheduler */
+
+
+
   while (1)
   {
     GPIOA->ODR |= GPIO_ODR_0;  
@@ -177,11 +193,11 @@ int main(void)
 
     int distance = PulsTravelTime * 0.0343 / 2; //het berekenen van de afstand in cm (Tijd in uS * snelheid van geluid in uS/cm / 2 omdat het heen en weer gaat)
 
-    snprintf(msgBuf, MSGBUFSIZE, "%d", distance);
-    HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
+    // snprintf(msgBuf, MSGBUFSIZE, "%d", distance);
+    // HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
   
-    snprintf(msgBuf, MSGBUFSIZE, "%s", " cm\r\n");
-    HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
+    // snprintf(msgBuf, MSGBUFSIZE, "%s", " cm\r\n");
+    // HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
 
     pidController.SetInput(double(distance));
 
@@ -194,29 +210,25 @@ int main(void)
 
     //int mapOutput = pidController.mapOutput(pidController.GetOutput(), motorMinSpeed, motorMaxSpeed, inputMin, inputMax);
     int mapOutput = 1500 + pidController.GetOutput();
-    snprintf(msgBuf, MSGBUFSIZE, "%d", mapOutput);
-    HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
+    int mapOutput2 = 1500 - pidController.GetOutput();
+    // snprintf(msgBuf, MSGBUFSIZE, "%d", mapOutput);
+    // HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
 
-    snprintf(msgBuf, MSGBUFSIZE, "%s", " Servo Val\r\n");
-    HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
+    // snprintf(msgBuf, MSGBUFSIZE, "%s", " Servo Val\r\n");
+    // HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
 
-    TIM2->CCR1 = mapOutput;
+    if (servosEnabled)
+    {
+      TIM2->CCR1 = mapOutput;
+      TIM2->CCR2 = mapOutput2;
+    }
 
     // 1280 - 1480 Clockwise
     // 1480 - 1520 Stop
     // 1520 - 1720 Counter-clockwise
     // TIM2->CCR1 = 1600; 
     // TIM2->CCR2 = 1400; 
-    // if (servosEnabled)
-    // {
-    //   TIM2->CCR1 = 1600; 
-    //   TIM2->CCR2 = 1400; 
-    // }
-    // else 
-    // {
-    //   TIM2->CCR1 = 1480; 
-    //   TIM2->CCR2 = 1480; 
-    // }
+    
     HAL_Delay(25);
   }
 }

@@ -22,13 +22,7 @@ void PIDController::Compute()
   integral += ki * error;
 
   // Anti-windup - limit the integral value within a range
-  if (integral > maxIntegral) {
-    integral = maxIntegral;
-  } else if (integral < -maxIntegral) {
-    integral = -maxIntegral;
-  }
-
-  
+  clamp(integral, -maxIntegral, maxIntegral);
 
   // Calculate the derivative term
     derivative = kd * (error - lastError);
@@ -45,7 +39,7 @@ void PIDController::Compute()
   lastError = error;
 }
 
-int clamp(int value, int minValue, int maxValue) {
+int PIDController::clamp(int value, int minValue, int maxValue) {
   if (value < minValue) {
     return minValue;
   } else if (value > maxValue) {
