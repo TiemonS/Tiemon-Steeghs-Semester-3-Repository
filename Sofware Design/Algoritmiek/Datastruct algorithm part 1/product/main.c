@@ -47,12 +47,12 @@ int main(int argc, char* argv[])
         ComputeDifferenceBetweenMaxAndMinSumOfKElements_2(arrayData.array, arrayData.arraySize, arrayData.k, &difference);
         printf("%d\n", difference);
     }
-    else if (selectedAssignment == 33)
-    {
-        int difference = 0;
-        ComputeDifferenceBetweenMaxAndMinSumOfKElements_3(arrayData.array, arrayData.arraySize, arrayData.k, &difference);
-        printf("%d\n", difference);
-    }
+    // else if (selectedAssignment == 33)
+    // {
+    //     int difference = 0;
+    //     ComputeDifferenceBetweenMaxAndMinSumOfKElements_3(arrayData.array, arrayData.arraySize, arrayData.k, &difference);
+    //     printf("%d\n", difference);
+    // }
     else
     {
         printf("Error: Unknown assignment: %d\n", selectedAssignment);

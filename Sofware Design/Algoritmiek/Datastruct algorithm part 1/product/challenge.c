@@ -157,14 +157,54 @@ int ComputeDifferenceBetweenMaxAndMinSumOfKElements_1(int* array, int size, int 
     return 0;
 }
 
-int ComputeDifferenceBetweenMaxAndMinSumOfKElements_2(
-            int* array, int size, int k, int* difference)
-{
-    return -1;
+void Swap(int* a, int* b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
 }
 
-int ComputeDifferenceBetweenMaxAndMinSumOfKElements_3(
-            int* array, int size, int k, int* difference)
+void selectionSort(int *array, int size)
 {
-    return -1;
+    int i, j, min_idx;
+ 
+    // One by one move boundary of
+    // unsorted subarray
+    for (i = 0; i < size - 1; i++) {
+ 
+        // Find the minimum element in
+        // unsorted array
+        min_idx = i;
+        for (j = i + 1; j < size; j++) {
+            if (array[j] < array[min_idx])
+                min_idx = j;
+        }
+ 
+        // Swap the found minimum element
+        // with the first element
+        if (min_idx != i)
+            Swap(&array[min_idx], &array[i]);
+    }
 }
+
+int ComputeDifferenceBetweenMaxAndMinSumOfKElements_2(int* array, int size, int k, int* difference) {
+    if (k > size) {
+        return -1; // Ongeldige waarde voor k
+    }
+
+    // Sorteer de array met behulp van het selectiesort algoritme
+    selectionSort(array, size);
+
+    // Bereken de som van de k hoogste en k laagste elementen
+    int sumMax = 0;
+    int sumMin = 0;
+    for (int i = 0; i < k; i++) {
+        sumMax += array[size - i - 1];
+        sumMin += array[i];
+    }
+
+    // Bereken het verschil en sla het op in de difference pointer
+    *difference = sumMax - sumMin;
+
+    return 0;
+}
+

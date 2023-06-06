@@ -15,7 +15,7 @@ int ComputeDifferenceBetweenMaxAndMinSumOfKElements_1(
 int ComputeDifferenceBetweenMaxAndMinSumOfKElements_2(
             int* array, int size, int k, int* difference);
 
-int ComputeDifferenceBetweenMaxAndMinSumOfKElements_3(
-            int* array, int size, int k, int* difference);
+// int ComputeDifferenceBetweenMaxAndMinSumOfKElements_3(
+//             int* array, int size, int k, int* difference);
 
 #endif
