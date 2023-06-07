@@ -27,6 +27,7 @@
 #include <stdio.h>
 
 #include "UIManager.hpp"
+#include "RobotAuto.hpp"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -68,6 +69,15 @@ const osThreadAttr_t defaultTask_attributes = {
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
+PIDController pidController;
+DistanceSensor distanceSensor;
+ServoMotor servoMotorA;
+ServoMotor servoMotorB;
+
+RobotAuto* robotAuto;
+
+UIManager uImanager;
+int choice;
 
 /* USER CODE END FunctionPrototypes */
 
@@ -117,6 +127,17 @@ void MX_FREERTOS_Init(void)
   /* USER CODE END RTOS_EVENTS */
 }
 
+extern "C" void EXTI1_IRQHandler() {
+
+    if (EXTI->PR & EXTI_PR_PR1) 
+    {
+        EXTI->PR = EXTI_PR_PR1;   // Clear interrupt flag for EXTI1 
+        
+        distanceSensor.InterruptHandler();
+        uImanager.printMessage("kees", &huart2);
+    }
+}
+
 /* USER CODE BEGIN Header_StartDefaultTask */
 /**
   * @brief  Function implementing the defaultTask thread.
@@ -127,9 +148,15 @@ void MX_FREERTOS_Init(void)
 void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN StartDefaultTask */
+  robotAuto = new RobotAuto(pidController, distanceSensor, servoMotorA, servoMotorB);
+  robotAuto->getServoMotorA().SetupMotorA();
+  robotAuto->getDistanceSensor().SetupEchoInterrupt();
   /* Infinite loop */
   for (;;)
   {
+    uImanager.handleUserInput(choice, &huart2);
+    
+    //TIM2->CCR1 = 1400;
     osDelay(1);
   }
   /* USER CODE END StartDefaultTask */
@@ -137,13 +164,11 @@ void StartDefaultTask(void *argument)
 
 void UIHandle(void *argument) 
 {
-  UIManager uImanager;
-  uImanager.showOptions(&huart2);
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
   for (;;)
   {
-    uImanager.getUserInput(&huart2);
+    choice = uImanager.getUserInput(&huart2);
     osDelay(25);
   }
   /* USER CODE END StartDefaultTask */

@@ -10,8 +10,10 @@ class ServoMotor
 private:
     /* data */
 public:
-    ServoMotor(/* args */);
+    ServoMotor();
     ~ServoMotor();
+    void SetupMotorA();
+    void SetupMotorB();
 };
 
 

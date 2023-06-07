@@ -25,7 +25,7 @@ void PIDController::Compute()
   clamp(integral, -maxIntegral, maxIntegral);
 
   // Calculate the derivative term
-    derivative = kd * (error - lastError);
+  derivative = kd * (error - lastError);
 
   if (derivative < -3 && integral > 75)
   {
@@ -64,22 +64,17 @@ int PIDController::mapOutput(double output, int minSpeed, int maxSpeed, double i
   return mappedOutput;
 }
 
-int PIDController::mapProportional(double proportional, double inputMin, double inputMax) {
-  // Map the proportional value to the servo speed range
-  int servoSpeed = 0;
-
-  if (proportional < 0.0) {
-    // Map the negative proportional values to the clockwise servo speed range
-    servoSpeed = static_cast<int>((proportional / inputMin) * (1480 - 1280) + 1280);
-  } else if (proportional > 0.0) {
-    // Map the positive proportional values to the counter-clockwise servo speed range
-    servoSpeed = static_cast<int>((proportional / inputMax) * (1720 - 1520) + 1520);
-  } else {
-    // Set the servo speed to the stop position
-    servoSpeed = 1480;
+int PIDController::mapServosOutput(int pidOutput, int *servoAValue, int *servoBValue) 
+{
+  if (servoAValue == NULL || servoBValue == NULL)
+  {
+    return -1;
   }
+  
+  *servoAValue = 1500 + pidOutput;
+  *servoBValue = 1500 - pidOutput;
 
-  return servoSpeed;
+  return 1;
 }
 
 void PIDController::SetControllerParamters(double Kp, double Ki, double Kd) 
@@ -123,21 +118,6 @@ double PIDController::GetInput() const
 double PIDController::GetError() const
 {
     return error;
-}
-
-double PIDController::GetProportional() const
-{
-    return proportional;
-}
-
-double PIDController::GetIntegral() const
-{
-    return integral;
-}
-
-double PIDController::GetDerivative() const
-{
-    return derivative;
 }
 
 // Setter methods

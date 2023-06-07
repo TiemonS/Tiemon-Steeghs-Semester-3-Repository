@@ -33,9 +33,6 @@ bool servosEnabled = false;
 unsigned long RisingEdgeTime = 0;
 unsigned long PulsTravelTime = 0;
 
-PIDController pidController;
-UIManager uImanager;
-
 void LedModi(int Modi, int Speed) 
 {
   switch (Modi)
@@ -77,37 +74,31 @@ extern "C" void EXTI0_IRQHandler(void)
     }
 }
 
-//De interrupt handle methode voor pin PC0 (SensorEchoPin)
-extern "C" void EXTI1_IRQHandler(void)
-{
-    if (EXTI->PR & EXTI_PR_PR1) {
-        EXTI->PR = EXTI_PR_PR1;   // Clear interrupt flag for EXTI1
+// //De interrupt handle methode voor pin PC0 (SensorEchoPin)
+// extern "C" void EXTI1_IRQHandler(void)
+// {
+//     if (EXTI->PR & EXTI_PR_PR1) {
+//         EXTI->PR = EXTI_PR_PR1;   // Clear interrupt flag for EXTI1
 
-        //voor debuggen
-        // snprintf(msgBuf, MSGBUFSIZE, "%s", "Interrupt triggered on PC1!\r\n");
-        // HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
+//         //voor debuggen
+//         // snprintf(msgBuf, MSGBUFSIZE, "%s", "Interrupt triggered on PC1!\r\n");
+//         // HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
 
-        //Is de echo pin hoog?
-        if ((GPIOC->IDR & GPIO_IDR_1) != 0)
-        {
-        //sla de risingedge tijd op
-        RisingEdgeTime = TIM4->CNT;
-        }
-        //is de pin niet meer hoog? Dus falling edge getriggered
-        //en nog even kijken of de timer niet net gereset is
-        else if(TIM4->CNT > RisingEdgeTime)
-        {
-        //bereken het tijdsverschil tussen rising en falling edge
-        PulsTravelTime = TIM4->CNT - RisingEdgeTime;
-        }
-    }
-}
-
-void sendUARTMessage(UART_HandleTypeDef *huart, const char *message) {
-    char msgBuf[MSGBUFSIZE];
-    snprintf(msgBuf, MSGBUFSIZE, "%s", message);
-    HAL_UART_Transmit(huart, (uint8_t*)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
-  }
+//         //Is de echo pin hoog?
+//         if ((GPIOC->IDR & GPIO_IDR_1) != 0)
+//         {
+//         //sla de risingedge tijd op
+//         RisingEdgeTime = TIM4->CNT;
+//         }
+//         //is de pin niet meer hoog? Dus falling edge getriggered
+//         //en nog even kijken of de timer niet net gereset is
+//         else if(TIM4->CNT > RisingEdgeTime)
+//         {
+//         //bereken het tijdsverschil tussen rising en falling edge
+//         PulsTravelTime = TIM4->CNT - RisingEdgeTime;
+//         }
+//     }
+// }
 
 int main(void)
 {
@@ -117,16 +108,16 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
 
-  //methodes voor het opzetten van de timers
-  SetupTimer2Channel1(); //De pwm output timer van servo 1
-  SetupTimer2Channel2(); //De pwm output timer van servo 2
-  SetupTimer3Channel3(); //De pwm output timer voor de sensor trigger
+  // //methodes voor het opzetten van de timers
+  // SetupTimer2Channel1(); //De pwm output timer van servo 1
+  // SetupTimer2Channel2(); //De pwm output timer van servo 2
+  // SetupTimer3Channel3(); //De pwm output timer voor de sensor trigger
   
-  //De pwm input timer, Deze werkt momenteel niet goed waardoor 
-  //ik alleen de count van deze timer gebruik voor de echo pin van de sensor
-  SetupTimer4Channel1(); 
+  // //De pwm input timer, Deze werkt momenteel niet goed waardoor 
+  // //ik alleen de count van deze timer gebruik voor de echo pin van de sensor
+  // SetupTimer4Channel1(); 
 
-  pidController.SetSetpoint(10);
+  //pidController.SetSetpoint(10);
 
 
   //als eerste moet ik de PA0 PIN waarop ik de led heb aangelosten instellen op output
@@ -149,24 +140,6 @@ int main(void)
   EXTI->RTSR = EXTI_RTSR_TR0;   // ook nog rising edge aanzetten
   EXTI->IMR = EXTI_IMR_MR0; //EXTI0 Unmasken     
   NVIC_EnableIRQ(EXTI0_IRQn); 
-
-  ////////////////////////////
-  ////////////////////////////
-  ///Interrupt van de echo
-  ///////////////////////////
-
-  // Configure PC1 as input
-  GPIOC->MODER = (GPIOC->MODER & ~GPIO_MODER_MODER1) | (0b00 << GPIO_MODER_MODER1_Pos);
-
-  // Configure PC1 as interrupt pin
-  SYSCFG->EXTICR[0] = (SYSCFG->EXTICR[0] & ~SYSCFG_EXTICR1_EXTI1) | (0b010 << SYSCFG_EXTICR1_EXTI1_Pos); // pin PC1 to interrupt EXTI1
-
-  GPIOC->OTYPER &= ~GPIO_OTYPER_OT_1; // Set output type to push-pull for PC1
-
-  EXTI->FTSR |= EXTI_FTSR_TR1;   // Set interrupt EXTI1 trigger to falling edge
-  EXTI->RTSR |= EXTI_RTSR_TR1;   // Set interrupt EXTI1 trigger to rising edge
-  EXTI->IMR |= EXTI_IMR_MR1;     // EXTI1 Unmask
-  NVIC_EnableIRQ(EXTI1_IRQn);    // Enable the EXTI1 interrupt in the NVIC
 
   // ES Course Comments: Uncomment the three lines below to enable FreeRTOS.
   osKernelInitialize(); /* Call init function for freertos objects (in freertos.c) */
@@ -191,7 +164,7 @@ int main(void)
       //HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
     }
 
-    int distance = PulsTravelTime * 0.0343 / 2; //het berekenen van de afstand in cm (Tijd in uS * snelheid van geluid in uS/cm / 2 omdat het heen en weer gaat)
+    //int distance = PulsTravelTime * 0.0343 / 2; //het berekenen van de afstand in cm (Tijd in uS * snelheid van geluid in uS/cm / 2 omdat het heen en weer gaat)
 
     // snprintf(msgBuf, MSGBUFSIZE, "%d", distance);
     // HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
@@ -199,29 +172,24 @@ int main(void)
     // snprintf(msgBuf, MSGBUFSIZE, "%s", " cm\r\n");
     // HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
 
-    pidController.SetInput(double(distance));
+    //pidController.SetInput(double(distance));
 
-    int motorMinSpeed = 1280; // Minimum motor speed
-    int motorMaxSpeed = 1720; // Maximum motor speed
-    double inputMin = 1.0; // Minimum input distance (cm)
-    double inputMax = 400.0; // Maximum input distance (cm)
-
-    pidController.Compute();
+    //pidController.Compute();
 
     //int mapOutput = pidController.mapOutput(pidController.GetOutput(), motorMinSpeed, motorMaxSpeed, inputMin, inputMax);
-    int mapOutput = 1500 + pidController.GetOutput();
-    int mapOutput2 = 1500 - pidController.GetOutput();
+    //int mapOutput = 1500 + pidController.GetOutput();
+    //int mapOutput2 = 1500 - pidController.GetOutput();
     // snprintf(msgBuf, MSGBUFSIZE, "%d", mapOutput);
     // HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
 
     // snprintf(msgBuf, MSGBUFSIZE, "%s", " Servo Val\r\n");
     // HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
 
-    if (servosEnabled)
-    {
-      TIM2->CCR1 = mapOutput;
-      TIM2->CCR2 = mapOutput2;
-    }
+    // if (servosEnabled)
+    // {
+    //   TIM2->CCR1 = mapOutput;
+    //   TIM2->CCR2 = mapOutput2;
+    // }
 
     // 1280 - 1480 Clockwise
     // 1480 - 1520 Stop

@@ -8,15 +8,20 @@ class DistanceSensor
 private:
     int TriggerPin;
     int EchoPin;
+
+    unsigned long RisingEdgeTime = 0;
+    unsigned long PulsTravelTime = 0;
+
 public:
-    DistanceSensor(GPIO_TypeDef* TriggerPort, uint16_t TriggerPin);
+    DistanceSensor();
     ~DistanceSensor();
 
     void SetupTriggerTimer();
     void SetupEchoTimer();
     void SetupEchoInterrupt();
 
-    int CalculateDistance(int PulsTravelTime, int SpeedOfSound);
+    int CalculateDistance(int PulsTravelTime); 
+    void InterruptHandler();
 };
 
 
