@@ -9,6 +9,10 @@ Het adres van deze master is 8
 
 #include "bitmaps.hpp"
 
+
+#define SDA_Pin A4
+#define SCL_Pin A5
+
 #define OLED_ADDR 0x3C
 #define PIN_RESET 9  
 #define DC_JUMPER 1
@@ -19,13 +23,14 @@ void drawTest();
 
 void requestBusStatus();
 bool isBusAvailable2();
+bool readSDA();
 
 void setup()
 {
+  Serial.begin(9600);
   delay(100);
   Wire.begin(8); //De master verbinden aan de bus met het adres 8
-  Wire.onRequest(requestBusStatus); //de onrequest methode instellen
-
+  
   oled.begin();    // Oled instellen
   oled.clear(ALL); // Geheugen van de oled clearen
   oled.display();  // De display laten tonen wat in de buffer zit (standaard splashscreen)
@@ -35,16 +40,29 @@ void setup()
 
 void loop()
 {
-  //is de bus beschikbaar?
-  if(isBusAvailable2()) 
+  // Lees de SDA-lijn en print de waarde
+  // bool sdaValue = readSDA();
+  // Serial.println(sdaValue);
+
+  int SDA_value = digitalRead(SDA);
+  if (!SDA_value)
   {
-    //dan kan er data geschreven worden
-    BusAvialable = false;
-    drawTest();
-    delay(100);
-    BusAvialable = true;
-    delay(1000);
+    for (size_t i = 0; i < 8; i++)
+    {
+      Serial.println(digitalRead(SDA));
+    }    
   }
+  
+  //is de bus beschikbaar?
+  // if(isBusAvailable2()) 
+  // {
+  //   //dan kan er data geschreven worden
+  //   BusAvialable = false;
+  //   drawTest();
+  //   delay(100);
+  //   BusAvialable = true;
+  //   delay(1000);
+  // }
 }
 
 void drawTest()
@@ -53,18 +71,32 @@ void drawTest()
     oled.clear(ALL);
     oled.clear(PAGE);
     //het tekenenen van een test bitmap
-    oled.drawBitmap(marco_borsato);
+    oled.drawBitmap(Test_bitmap);
     //het updaten van de display
     oled.display();
 }
 
-//eerste versie voor het kijken van of de bus beschikbaar is
-//werkt alleen bij het aansluiten van een nieuwe master aan de bus
-bool isBusAvailable() {
-  Wire.beginTransmission(OLED_ADDR);
-  bool success = Wire.endTransmission() == 0;
-  return success;
+void SendTestData() 
+{
+  oled.data(0);
+  if (digitalRead(SDA))
+  {
+    //als de sda lijn niet laag is, gaat er iets fout (de andere master is bezig)
+    return;
+  }
+  
+  
+
+  oled.data(0);
+  oled.data(0);
+  oled.data(1);
+  oled.data(1);
+  oled.data(0);
+  oled.data(0);
+  oled.data(0);
+  oled.data(0);
 }
+
 
 //vraagt aan de andere master of de bus vrij is
 bool isBusAvailable2() {
@@ -83,6 +115,15 @@ bool isBusAvailable2() {
   return false;
 }
 
-void requestBusStatus() {
-  Wire.write(BusAvialable);
+//Low code lezen van binnenkomende data
+bool readSDA() {
+  TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWEA); // ACK verzenden om SDA-lijn te lezen
+  while (!(TWCR & (1 << TWINT))); // Wacht tot I2C-actie is voltooid
+
+  return bit_is_set(TWDR, 0); // Lees de bit 0 van het TWDR-register (SDA-lijn)
+}
+
+int CheckSDALine() 
+{
+  
 }

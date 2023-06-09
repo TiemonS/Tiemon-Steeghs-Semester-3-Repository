@@ -14,6 +14,9 @@ Het adres van deze master is 10
 #define PIN_RESET 9  
 #define DC_JUMPER 1
 
+#define SDA_Pin A4
+#define SCL_Pin A5
+
 MicroOLED oled(PIN_RESET, DC_JUMPER);  //Het opzetten van het I2C Oled object
 bool BusAvialable = true;
 
@@ -21,14 +24,15 @@ void drawTest();
 bool isBusAvailable();
 bool isBusAvailable2();
 void requestBusStatus();
+void SendTestData();
 
 void setup()
 {
   delay(100); //een kleine delay om de display de tijd te geven om goed op te starten
   Serial.begin(9600);
-
+  
+  pinMode(SDA_Pin, INPUT_PULLUP);
   Wire.begin(10); //De master verbinden aan de bus met het adres 10
-  Wire.onRequest(requestBusStatus); //de onrequest methode instellen
 
   oled.begin();    // Oled instellen
   oled.clear(ALL); // Geheugen van de oled clearen
@@ -39,17 +43,19 @@ void setup()
 
 void loop()
 {
-  bool requestavialable = isBusAvailable2(); //het aanvragen aan de andere master of de bus vrij is
-  Serial.println(requestavialable);
-  if(requestavialable) 
-  {
-    BusAvialable = false;
-    drawTest();
-    delay(100);
-    BusAvialable = true;
-    delay(500);
-  }
-  //delay(1000);
+  
+ SendTestData();
+
+  // if(requestavialable) 
+  // {
+  //   BusAvialable = false;
+  //   drawTest();
+  //   delay(100);
+  //   BusAvialable = true;
+  //   delay(500);
+  // }
+
+ delay(1000);
 }
 
 void drawTest()
@@ -63,6 +69,20 @@ void drawTest()
     oled.display();
 }
 
+void SendTestData() 
+{
+  oled.data(0);
+
+  oled.data(0);
+  oled.data(0);
+  oled.data(1);
+  oled.data(1);
+  oled.data(0);
+  oled.data(0);
+  oled.data(0);
+  oled.data(0);
+}
+
 //eerste versie voor het kijken van of de bus beschikbaar is
 //werkt alleen bij het aansluiten van een nieuwe master aan de bus
 bool isBusAvailable() {
@@ -73,11 +93,11 @@ bool isBusAvailable() {
 
 //vraagt aan de andere master of de bus vrij is
 bool isBusAvailable2() {
-  Wire.beginTransmission(10);  // transmission starten met master 2 (adres 10)
+  Wire.beginTransmission(8);  // transmission starten met master 2 (adres 8)
   Wire.write(1);  // aangeven aan de andere master 2 dat we de status willen opvragen
   Wire.endTransmission(); //transmission weer stoppen
 
-  Wire.requestFrom(10, 1);  // De satus opvragen 
+  Wire.requestFrom(8, 1);  // De satus opvragen 
   //is er data beschikbaar?
   if (Wire.available()) {
   //lees de data en sla het op
@@ -88,6 +108,5 @@ bool isBusAvailable2() {
   return false;
 }
 
-void requestBusStatus() {
-  Wire.write(BusAvialable);
-}
+
+
