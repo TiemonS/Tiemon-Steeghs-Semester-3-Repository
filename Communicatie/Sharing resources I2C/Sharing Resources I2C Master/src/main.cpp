@@ -17,21 +17,30 @@ Het adres van deze master is 10
 #define SDA_Pin A4
 #define SCL_Pin A5
 
+#define I2C_DELAY 303
+
+volatile uint8_t *portRegister;
+volatile uint8_t *pinRegister;
+int pinMask;
+
 MicroOLED oled(PIN_RESET, DC_JUMPER);  //Het opzetten van het I2C Oled object
 bool BusAvialable = true;
+unsigned long CurrentMicros;
 
 void drawTest();
 bool isBusAvailable();
 bool isBusAvailable2();
 void requestBusStatus();
 void SendTestData();
+void Micros_Bit_Delay(); 
+bool readSDA();
 
 void setup()
 {
   delay(100); //een kleine delay om de display de tijd te geven om goed op te starten
   Serial.begin(9600);
   
-  pinMode(SDA_Pin, INPUT_PULLUP);
+  //pinMode(SDA, INPUT);
   Wire.begin(10); //De master verbinden aan de bus met het adres 10
 
   oled.begin();    // Oled instellen
@@ -43,20 +52,10 @@ void setup()
 
 void loop()
 {
-  
- SendTestData();
-
-  // if(requestavialable) 
-  // {
-  //   BusAvialable = false;
-  //   drawTest();
-  //   delay(100);
-  //   BusAvialable = true;
-  //   delay(500);
-  // }
-
- delay(1000);
+  SendTestData();
+  delay(500);
 }
+
 
 void drawTest()
 {
@@ -72,23 +71,14 @@ void drawTest()
 void SendTestData() 
 {
   oled.data(0);
-
   oled.data(0);
   oled.data(0);
   oled.data(1);
   oled.data(1);
+  oled.data(1);
   oled.data(0);
   oled.data(0);
   oled.data(0);
-  oled.data(0);
-}
-
-//eerste versie voor het kijken van of de bus beschikbaar is
-//werkt alleen bij het aansluiten van een nieuwe master aan de bus
-bool isBusAvailable() {
-  Wire.beginTransmission(OLED_ADDR);
-  bool success = Wire.endTransmission() == 0;
-  return success;
 }
 
 //vraagt aan de andere master of de bus vrij is
@@ -107,6 +97,8 @@ bool isBusAvailable2() {
 
   return false;
 }
+
+
 
 
 
