@@ -8,7 +8,4 @@ void SetupTimer4Channel1();
 
 int readTimer4Value();
 
-void SetupEchoInterrupt();
-extern "C" void EXTI1_IRQHandler(void);
-
 #endif

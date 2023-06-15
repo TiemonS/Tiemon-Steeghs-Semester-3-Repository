@@ -10,17 +10,13 @@
 
 DistanceSensor::DistanceSensor() 
 {
-    SetupTimer3Channel3(); //De pwm output timer voor de sensor trigger
 
-    //De pwm input timer, Deze werkt momenteel niet goed waardoor 
-    //ik alleen de count van deze timer gebruik voor de echo pin van de sensor
-    SetupTimer4Channel1(); 
 }
 
 DistanceSensor::~DistanceSensor() {}
 
 //het berekenen van de afstand in cm (Tijd in uS * snelheid van geluid in uS/cm / 2 omdat het heen en weer gaat)
-int DistanceSensor::CalculateDistance(int PulsTravelTime) 
+int DistanceSensor::CalculateDistance() 
 {
     int distance = PulsTravelTime * 0.0343 / 2; 
     return distance;
@@ -59,4 +55,19 @@ void DistanceSensor::InterruptHandler()
     }
 }
 
+void DistanceSensor::SetupTriggerTimer() 
+{
+    SetupTimer3Channel3(); //De pwm output timer voor de sensor trigger
+}
+
+void DistanceSensor::SetupEchoTimer() 
+{
+    //De pwm input timer, Deze werkt momenteel niet goed waardoor 
+    //ik alleen de count van deze timer gebruik voor de echo pin van de sensor
+    SetupTimer4Channel1(); 
+}
+
+unsigned long DistanceSensor::GetRisingEdgeTime() const {
+    return RisingEdgeTime;
+}
 

@@ -1,7 +1,9 @@
+#include "../Interfaces/IPIDController.hpp"
+
 #ifndef PIDCONTROLLER_HPP
 #define PIDCONTROLLER_HPP
 
-class PIDController
+class PIDController : public IPIDController
 {
 private:
 
@@ -11,7 +13,7 @@ private:
     double kd = 0.5; //Derivative term control parameter (toekomst)
 
     // PID-controller variables
-    double setpoint = 0.0; //de desiredoutput het doel wat de controller wilt berijken
+    double setpoint = 10.0; //de desiredoutput het doel wat de controller wilt berijken
     double output = 0.0; //de output van de PID controller
     double input = 0.0; //de input van de controller, in dit geval de ultrasonische sensor
 
@@ -22,20 +24,18 @@ private:
     double integral = 0.0;
     double derivative = 0.0;
 
-    double maxIntegral = 200.0;
+    double maxIntegral = 70.0;
     
 public:
     PIDController();
     ~PIDController();
 
-    int clamp(int value, int minValue, int maxValue);
-
     /*De PID controller update methode. Hierin wordt als eerste de error berekend en daarna de PID Output
     De PID output is wordt dan weer berekend aan de hand van de controller parameters.*/
-    void Compute(); 
-    void SetControllerParamters(double Kp, double Ki, double Kd);
+    void Compute(double input); 
+    void SetControllerParameters(double Kp, double Ki, double Kd);
     int mapOutput(double output, int minSpeed, int maxSpeed, double inputMin, double inputMax);
-    int mapServosOutput(int pidOutput, int *servoAValue, int *servoBValue); 
+    int mapServosOutput(int *servoAValue, int *servoBValue); 
 
     // Getter methods
     double GetKp() const;
@@ -49,7 +49,6 @@ public:
     // Setter methods
     void SetSetpoint(double setpoint);
     void SetOutput(double output);
-    void SetInput(double input);
 };
 
 #endif

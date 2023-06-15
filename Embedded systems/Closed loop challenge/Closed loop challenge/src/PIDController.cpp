@@ -10,7 +10,7 @@
 PIDController::PIDController() {}
 PIDController::~PIDController() {}
 
-void PIDController::Compute() 
+void PIDController::Compute(double input) 
 {
    // Calculate the error
    error = input - setpoint;
@@ -22,7 +22,15 @@ void PIDController::Compute()
   integral += ki * error;
 
   // Anti-windup - limit the integral value within a range
-  clamp(integral, -maxIntegral, maxIntegral);
+  if (integral < -maxIntegral) 
+  {
+    integral = -maxIntegral;
+  } 
+  else if (integral > maxIntegral) 
+  {
+    integral = maxIntegral;
+  } 
+  
 
   // Calculate the derivative term
   derivative = kd * (error - lastError);
@@ -33,20 +41,10 @@ void PIDController::Compute()
   }
 
   // Calculate the control output
-    output = proportional + integral + derivative;
+  output = proportional + integral + derivative;
 
   // Update the previous error
   lastError = error;
-}
-
-int PIDController::clamp(int value, int minValue, int maxValue) {
-  if (value < minValue) {
-    return minValue;
-  } else if (value > maxValue) {
-    return maxValue;
-  } else {
-    return value;
-  }
 }
 
 // Mapping function
@@ -59,25 +57,25 @@ int PIDController::mapOutput(double output, int minSpeed, int maxSpeed, double i
   int mappedOutput = static_cast<int>((mappedInput) * (maxSpeed - minSpeed) + minSpeed);
 
   // Constrain the mapped output within the servo speed range
-  mappedOutput = clamp(mappedOutput, minSpeed, maxSpeed);
+  //mappedOutput = clamp(mappedOutput, minSpeed, maxSpeed);
 
   return mappedOutput;
 }
 
-int PIDController::mapServosOutput(int pidOutput, int *servoAValue, int *servoBValue) 
+int PIDController::mapServosOutput(int *servoAValue, int *servoBValue) 
 {
   if (servoAValue == NULL || servoBValue == NULL)
   {
     return -1;
   }
   
-  *servoAValue = 1500 + pidOutput;
-  *servoBValue = 1500 - pidOutput;
+  *servoAValue = 1500 + output;
+  *servoBValue = 1500 - output;
 
   return 1;
 }
 
-void PIDController::SetControllerParamters(double Kp, double Ki, double Kd) 
+void PIDController::SetControllerParameters(double Kp, double Ki, double Kd) 
 {
     kp = Kp;
     ki = Ki;
@@ -131,7 +129,3 @@ void PIDController::SetOutput(double output)
     this->output = output;
 }
 
-void PIDController::SetInput(double input)
-{
-    this->input = input;
-}

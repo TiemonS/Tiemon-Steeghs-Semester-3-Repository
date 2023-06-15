@@ -149,22 +149,6 @@ void SetupTimer4Channel1()
   GPIOB->AFR[0] = (GPIOB->AFR[0] & ~GPIO_AFRL_AFRL6) | (0b0010 << GPIO_AFRL_AFRL6_Pos);
 }
 
-void SetupEchoInterrupt() 
-{
-  // Configure PC1 as input
-  GPIOC->MODER = (GPIOC->MODER & ~GPIO_MODER_MODER1) | (0b00 << GPIO_MODER_MODER1_Pos);
-
-  // Configure PC1 as interrupt pin
-  SYSCFG->EXTICR[0] = (SYSCFG->EXTICR[0] & ~SYSCFG_EXTICR1_EXTI1) | (0b010 << SYSCFG_EXTICR1_EXTI1_Pos); // pin PC1 to interrupt EXTI1
-
-  GPIOC->OTYPER &= ~GPIO_OTYPER_OT_1; // Set output type to push-pull for PC1
-
-  EXTI->FTSR |= EXTI_FTSR_TR1;   // Set interrupt EXTI1 trigger to falling edge
-  EXTI->RTSR |= EXTI_RTSR_TR1;   // Set interrupt EXTI1 trigger to rising edge
-  EXTI->IMR |= EXTI_IMR_MR1;     // EXTI1 Unmask
-  NVIC_EnableIRQ(EXTI1_IRQn);    // Enable the EXTI1 interrupt in the NVIC
-}
-
 int readTimer4Value()
 {
   return TIM4->CCR1;

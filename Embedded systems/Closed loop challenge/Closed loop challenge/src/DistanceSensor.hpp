@@ -1,9 +1,10 @@
 #include "stm32f3xx_hal.h"
+#include "../Interfaces/IDistanceSensor.hpp"
 
 #ifndef DISTANCESENSOR_HPP
 #define DISTANCESENSOR_HPP
 
-class DistanceSensor
+class DistanceSensor : public IDistanceSensor
 {
 private:
     int TriggerPin;
@@ -20,8 +21,10 @@ public:
     void SetupEchoTimer();
     void SetupEchoInterrupt();
 
-    int CalculateDistance(int PulsTravelTime); 
+    int CalculateDistance(); 
     void InterruptHandler();
+
+    unsigned long GetRisingEdgeTime() const;
 };
 
 

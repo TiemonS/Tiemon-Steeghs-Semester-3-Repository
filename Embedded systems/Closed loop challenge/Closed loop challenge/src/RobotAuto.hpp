@@ -10,19 +10,21 @@
 class RobotAuto
 {
 private:
-    PIDController pidController;
-    DistanceSensor distanceSensor;
-    ServoMotor servoMotorA;
-    ServoMotor servoMotorB;
+    IPIDController& pidController;
+    IDistanceSensor& distanceSensor;
+    IServoMotor& servoMotorA;
+    IServoMotor& servoMotorB;
 public:
-    RobotAuto(PIDController pidController, DistanceSensor distanceSensor, ServoMotor servoMotorA, ServoMotor servoMotorB);
+    RobotAuto(IPIDController& pidController, IDistanceSensor& distanceSensor, IServoMotor& servoMotorA, IServoMotor& servoMotorB);
     ~RobotAuto();
 
     // Getter methods
-    DistanceSensor getDistanceSensor() const;
-    PIDController getPIDController() const;
-    ServoMotor getServoMotorA() const;
-    ServoMotor getServoMotorB() const;
+    IDistanceSensor& getDistanceSensor() const;
+    IPIDController& getPIDController() const;
+    IServoMotor& getServoMotorA() const;
+    IServoMotor& getServoMotorB() const;
+
+    void HandleInput(int choice) ;
 };
 
 

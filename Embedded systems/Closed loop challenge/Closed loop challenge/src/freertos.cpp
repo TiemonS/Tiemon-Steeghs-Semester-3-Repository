@@ -25,9 +25,12 @@
 #include "cmsis_os.h"
 #include <string.h>
 #include <stdio.h>
+#include "semphr.h"
 
 #include "UIManager.hpp"
 #include "RobotAuto.hpp"
+#include "DistanceSensor.hpp"
+#include "PIDController.hpp"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -63,7 +66,18 @@ const osThreadAttr_t defaultTask_attributes = {
     .cb_size = 0,
     .stack_mem = NULL,
     .stack_size = 128 * 4,
-    .priority = (osPriority_t)osPriorityNormal,
+    .priority = (osPriority_t)osPriorityNormal1,
+    .tz_module = 0,
+    .reserved = 0};
+
+const osThreadAttr_t UITask_attributes = {
+    .name = "uiTask",
+    .attr_bits = osThreadDetached,
+    .cb_mem = NULL,
+    .cb_size = 0,
+    .stack_mem = NULL,
+    .stack_size = 128 * 4,
+    .priority = (osPriority_t)osPriorityNormal1,
     .tz_module = 0,
     .reserved = 0};
 
@@ -78,6 +92,13 @@ RobotAuto* robotAuto;
 
 UIManager uImanager;
 int choice;
+int tempChoice;
+
+const int MSGBUFSIZE = 80;
+char msgBuffer[MSGBUFSIZE];
+
+//Semaphore
+SemaphoreHandle_t g_mutex;
 
 /* USER CODE END FunctionPrototypes */
 
@@ -116,7 +137,7 @@ void MX_FREERTOS_Init(void)
   /* Create the thread(s) */
   /* creation of defaultTask */
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
-  UIThread = osThreadNew(UIHandle, NULL, &defaultTask_attributes);
+  UIThread = osThreadNew(UIHandle, NULL, &UITask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -134,42 +155,76 @@ extern "C" void EXTI1_IRQHandler() {
         EXTI->PR = EXTI_PR_PR1;   // Clear interrupt flag for EXTI1 
         
         distanceSensor.InterruptHandler();
-        uImanager.printMessage("kees", &huart2);
+        //uImanager.printMessage("kees", &huart2);
     }
 }
 
-/* USER CODE BEGIN Header_StartDefaultTask */
-/**
-  * @brief  Function implementing the defaultTask thread.
-  * @param  argument: Not used
-  * @retval None
-  */
-/* USER CODE END Header_StartDefaultTask */
+//De thread voor het beheren van de input afkomstig uit de UI, oftewel de robotauto
 void StartDefaultTask(void *argument)
 {
-  /* USER CODE BEGIN StartDefaultTask */
+
   robotAuto = new RobotAuto(pidController, distanceSensor, servoMotorA, servoMotorB);
   robotAuto->getServoMotorA().SetupMotorA();
-  robotAuto->getDistanceSensor().SetupEchoInterrupt();
+  robotAuto->getServoMotorB().SetupMotorB();
+  IDistanceSensor& robotDistanceSensor = robotAuto->getDistanceSensor();
+  robotDistanceSensor.SetupTriggerTimer();
+  robotDistanceSensor.SetupEchoTimer();
+  robotDistanceSensor.SetupEchoInterrupt();
   /* Infinite loop */
   for (;;)
   {
-    uImanager.handleUserInput(choice, &huart2);
-    
-    //TIM2->CCR1 = 1400;
-    osDelay(1);
+    // UI-thread
+     if (xSemaphoreTake(g_mutex, portMAX_DELAY) == pdTRUE) {
+      // Kritieke sectie
+      // Lees de gedeelde variabele uit
+      robotAuto->HandleInput(choice);
+      // Geef de mutex vrij
+      xSemaphoreGive(g_mutex);
+
+      // Voer andere taken uit
+      // ...
+    }
+
+    osDelay(25);
   }
   /* USER CODE END StartDefaultTask */
 }
 
 void UIHandle(void *argument) 
 {
+  /* Create a mutex type semaphore. */
+   g_mutex = xSemaphoreCreateMutex();
+
+   if( g_mutex != NULL )
+   {
+    uImanager.printMessage("Mutex succesvol aangemaakt!", &huart2);
+
+       /* The semaphore was created successfully and
+       can be used. */
+   }
+   else 
+   {
+    /* The semaphore creation failed. Handle the error accordingly. */
+    uImanager.printMessage("Mutex L", &huart2);
+    }
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
   for (;;)
   {
-    choice = uImanager.getUserInput(&huart2);
-    osDelay(25);
+  // UI-thread
+  tempChoice = uImanager.getUserInput(&huart2);
+  uImanager.PrintUserInput(tempChoice, &huart2);
+  if (xSemaphoreTake(g_mutex, portMAX_DELAY) == pdTRUE) {
+    // Kritieke sectie
+    choice = tempChoice;
+
+    // Geef de mutex vrij
+    xSemaphoreGive(g_mutex);
+
+    // Voer andere taken uit
+    // ...
+  }
+    osDelay(10);
   }
   /* USER CODE END StartDefaultTask */
 }
@@ -182,3 +237,10 @@ void UIHandle(void *argument)
 /* USER CODE END Application */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+
+//TODO
+//Fixen dat beiden threads goed werken zonder een print te gebruiken
+//de verschillende methodes die ik heb testen hiervoor, sommige weghalen kijken waar het aan ligt
+//osDelay vergroten of verkleinen misschien?
+//print methode tijdelijk uitzetten dus alleen om informatie vragen
+//kijken wat tim doet

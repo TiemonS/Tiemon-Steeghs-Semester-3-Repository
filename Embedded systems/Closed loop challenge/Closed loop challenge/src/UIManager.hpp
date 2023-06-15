@@ -1,9 +1,12 @@
+#include "../Interfaces/IUIManager.hpp"
+
 #ifndef UIMANAGER_HPP
 #define UIMANAGER_HPP
 
 #include <iostream>
 
-class UIManager {
+class UIManager : public IUIManager 
+{
 
 private:
     const int msgBufSize = 120;
@@ -13,9 +16,11 @@ private:
 public:
     int getUserInput(UART_HandleTypeDef *huart);
 
-    void handleUserInput(int choice, UART_HandleTypeDef *huart);
+    void PrintUserInput(int choice, UART_HandleTypeDef *huart);
 
     void printMessage(const char* message, UART_HandleTypeDef *huart);
+
+    void printDistance(int distance, UART_HandleTypeDef *huart);
 };
 
 #endif

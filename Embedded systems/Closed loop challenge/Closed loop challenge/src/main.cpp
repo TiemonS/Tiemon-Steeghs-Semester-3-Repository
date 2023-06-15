@@ -30,49 +30,46 @@ char msgBuf[MSGBUFSIZE];
 bool ShortPress = false;
 bool servosEnabled = false;
 
-unsigned long RisingEdgeTime = 0;
-unsigned long PulsTravelTime = 0;
+// void LedModi(int Modi, int Speed) 
+// {
+//   switch (Modi)
+//   {
+//   case 1:
+//   if (HAL_GetTick() >= previousMillis + Speed)
+//   {
+//     GPIOB->ODR ^= GPIO_ODR_4;
+//     previousMillis = HAL_GetTick();
+//   }
+//     break;
+//   case 2:
+//     GPIOB->ODR |= GPIO_ODR_4; //Het togglen van de LED op pin PB5
+//     break;
+//   }
+// }
 
-void LedModi(int Modi, int Speed) 
-{
-  switch (Modi)
-  {
-  case 1:
-  if (HAL_GetTick() >= previousMillis + Speed)
-  {
-    GPIOB->ODR ^= GPIO_ODR_4;
-    previousMillis = HAL_GetTick();
-  }
-    break;
-  case 2:
-    GPIOB->ODR |= GPIO_ODR_4; //Het togglen van de LED op pin PB5
-    break;
-  }
-}
-
-extern "C" void EXTI0_IRQHandler(void)  
-{
-    EXTI->PR = EXTI_PR_PR0;   // Interrupt flag resetten zodat ook de volgende intterupt goed verwerkt wordt
-    //GPIOB->ODR ^= GPIO_ODR_5; //Het togglen van de LED op pin PB5
+// extern "C" void EXTI0_IRQHandler(void)  
+// {
+//     EXTI->PR = EXTI_PR_PR0;   // Interrupt flag resetten zodat ook de volgende intterupt goed verwerkt wordt
+//     //GPIOB->ODR ^= GPIO_ODR_5; //Het togglen van de LED op pin PB5
   
-    //snprintf(msgBuf, MSGBUFSIZE, "%s", "Interrupt aan!\r\n");
-    //HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
+//     //snprintf(msgBuf, MSGBUFSIZE, "%s", "Interrupt aan!\r\n");
+//     //HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
 
   	
-    //is de knop ingedrukt?
-    if ((GPIOC->IDR & GPIO_IDR_0) != 0)
-    {
-    //sla de risingedge tijd op
-    RisingEdgeMillisTime = HAL_GetTick();
-    servosEnabled = !servosEnabled;
-    }
-    //is de knop niet meer ingedrukt? Dus falling edge getriggered
-    else
-    {
-    //bereken het tijdsverschil tussen rising en falling edge
-    ButtonPressedTime = HAL_GetTick() - RisingEdgeMillisTime;
-    }
-}
+//     //is de knop ingedrukt?
+//     if ((GPIOC->IDR & GPIO_IDR_0) != 0)
+//     {
+//     //sla de risingedge tijd op
+//     RisingEdgeMillisTime = HAL_GetTick();
+//     servosEnabled = !servosEnabled;
+//     }
+//     //is de knop niet meer ingedrukt? Dus falling edge getriggered
+//     else
+//     {
+//     //bereken het tijdsverschil tussen rising en falling edge
+//     ButtonPressedTime = HAL_GetTick() - RisingEdgeMillisTime;
+//     }
+// }
 
 // //De interrupt handle methode voor pin PC0 (SensorEchoPin)
 // extern "C" void EXTI1_IRQHandler(void)
@@ -120,26 +117,26 @@ int main(void)
   //pidController.SetSetpoint(10);
 
 
-  //als eerste moet ik de PA0 PIN waarop ik de led heb aangelosten instellen op output
-  //Zie GPIO port mode register 
-  //ob00 INPUT
-  //0b01 OUTPUT 
-  GPIOB->MODER = (GPIOB->MODER & ~GPIO_MODER_MODER4) | (0b01 << GPIO_MODER_MODER4_Pos); //Pin PB4 (De led) Instellen als OUTPUT pin
-  GPIOC->MODER = (GPIOC->MODER & ~GPIO_MODER_MODER0) | (0b00 << GPIO_MODER_MODER0_Pos); //Pin P0C (De knop) instellen als INPUT pin
+//   //als eerste moet ik de PA0 PIN waarop ik de led heb aangelosten instellen op output
+//   //Zie GPIO port mode register 
+//   //ob00 INPUT
+//   //0b01 OUTPUT 
+//   GPIOB->MODER = (GPIOB->MODER & ~GPIO_MODER_MODER4) | (0b01 << GPIO_MODER_MODER4_Pos); //Pin PB4 (De led) Instellen als OUTPUT pin
+//   GPIOC->MODER = (GPIOC->MODER & ~GPIO_MODER_MODER0) | (0b00 << GPIO_MODER_MODER0_Pos); //Pin P0C (De knop) instellen als INPUT pin
   
- // GPIOA->MODER = (GPIOA->MODER & ~GPIO_MODER_MODER0) | (0b10 << GPIO_MODER_MODER0_Pos); //Pib PA0 (Servo) instellen als alternatieve functie
- // GPIOA->AFR[0] = (GPIOA->AFR[0] & ~GPIO_AFRL_AFRL2) | (0b0001 << GPIO_AFRL_AFRL2_Pos); //register Pagina 241
+//  // GPIOA->MODER = (GPIOA->MODER & ~GPIO_MODER_MODER0) | (0b10 << GPIO_MODER_MODER0_Pos); //Pib PA0 (Servo) instellen als alternatieve functie
+//  // GPIOA->AFR[0] = (GPIOA->AFR[0] & ~GPIO_AFRL_AFRL2) | (0b0001 << GPIO_AFRL_AFRL2_Pos); //register Pagina 241
 
-  GPIOC->OTYPER &= ~GPIO_OTYPER_OT_0;
+//   GPIOC->OTYPER &= ~GPIO_OTYPER_OT_0;
 
-  //dan vervolgens zet ik PINC0 in als interrupt pin dit doe ik in het SYSCFG_EXTICR0 register 
-  SYSCFG->EXTICR[0] = (SYSCFG->EXTICR[0] & ~SYSCFG_EXTICR1_EXTI0) | (0b010 << SYSCFG_EXTICR1_EXTI0_Pos); // pin PC0 to interrupt EXTI0
+//   //dan vervolgens zet ik PINC0 in als interrupt pin dit doe ik in het SYSCFG_EXTICR0 register 
+//   SYSCFG->EXTICR[0] = (SYSCFG->EXTICR[0] & ~SYSCFG_EXTICR1_EXTI0) | (0b010 << SYSCFG_EXTICR1_EXTI0_Pos); // pin PC0 to interrupt EXTI0
 
 
-  EXTI->FTSR = EXTI_FTSR_TR0;   // Set interrupt EXTI0 trigger to falling edge
-  EXTI->RTSR = EXTI_RTSR_TR0;   // ook nog rising edge aanzetten
-  EXTI->IMR = EXTI_IMR_MR0; //EXTI0 Unmasken     
-  NVIC_EnableIRQ(EXTI0_IRQn); 
+//   EXTI->FTSR = EXTI_FTSR_TR0;   // Set interrupt EXTI0 trigger to falling edge
+//   EXTI->RTSR = EXTI_RTSR_TR0;   // ook nog rising edge aanzetten
+//   EXTI->IMR = EXTI_IMR_MR0; //EXTI0 Unmasken     
+//   NVIC_EnableIRQ(EXTI0_IRQn); 
 
   // ES Course Comments: Uncomment the three lines below to enable FreeRTOS.
   osKernelInitialize(); /* Call init function for freertos objects (in freertos.c) */
@@ -150,19 +147,19 @@ int main(void)
 
   while (1)
   {
-    GPIOA->ODR |= GPIO_ODR_0;  
-    if (ButtonPressedTime > 1000 && ButtonPressedTime < 2000)
-    {
-      LedModi(1, 500);
-      //snprintf(msgBuf, MSGBUFSIZE, "%s", "aiergjaierugjaerug\r\n");
-      //HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
-    }
-    else if (ButtonPressedTime > 30 && ButtonPressedTime < 1000)
-    {
-      LedModi(2, 500);
-      //snprintf(msgBuf, MSGBUFSIZE, "%s", "zxcvzxcvczxv4578suightrsg\r\n");
-      //HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
-    }
+    // GPIOA->ODR |= GPIO_ODR_0;  
+    // if (ButtonPressedTime > 1000 && ButtonPressedTime < 2000)
+    // {
+    //   LedModi(1, 500);
+    //   //snprintf(msgBuf, MSGBUFSIZE, "%s", "aiergjaierugjaerug\r\n");
+    //   //HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
+    // }
+    // else if (ButtonPressedTime > 30 && ButtonPressedTime < 1000)
+    // {
+    //   LedModi(2, 500);
+    //   //snprintf(msgBuf, MSGBUFSIZE, "%s", "zxcvzxcvczxv4578suightrsg\r\n");
+    //   //HAL_UART_Transmit(&huart2, (uint8_t *)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
+    // }
 
     //int distance = PulsTravelTime * 0.0343 / 2; //het berekenen van de afstand in cm (Tijd in uS * snelheid van geluid in uS/cm / 2 omdat het heen en weer gaat)
 
@@ -197,7 +194,7 @@ int main(void)
     // TIM2->CCR1 = 1600; 
     // TIM2->CCR2 = 1400; 
     
-    HAL_Delay(25);
+    //HAL_Delay(25);
   }
 }
 

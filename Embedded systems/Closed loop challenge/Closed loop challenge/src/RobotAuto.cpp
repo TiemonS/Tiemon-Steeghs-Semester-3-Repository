@@ -1,6 +1,10 @@
 #include "RobotAuto.hpp"
+#include "../Interfaces/IDistanceSensor.hpp"
+#include "../Interfaces/IPIDController.hpp"
+#include "../Interfaces/IServoMotor.hpp"
 
-RobotAuto::RobotAuto(PIDController pidController, DistanceSensor distanceSensor, ServoMotor servoMotorA, ServoMotor servoMotorB)
+RobotAuto::RobotAuto(IPIDController& pidController, IDistanceSensor& distanceSensor, IServoMotor& servoMotorA, IServoMotor& servoMotorB) 
+: pidController(pidController), distanceSensor(distanceSensor), servoMotorA(servoMotorA), servoMotorB(servoMotorB) 
 {
     this->pidController = pidController;
     this->distanceSensor = distanceSensor;
@@ -8,23 +12,55 @@ RobotAuto::RobotAuto(PIDController pidController, DistanceSensor distanceSensor,
     this->servoMotorB = servoMotorB;
 }
 
+void RobotAuto::HandleInput(int choice) 
+{
+    int mapOutput;
+    int mapOutput2;
+    int distance;
+    switch (choice)
+    {
+    case 1:
+        servoMotorA.MoveServoA(250, false);
+        servoMotorB.MoveServoB(250, false);
+        break;
+    case 2:
+        servoMotorA.MoveServoA(0, false);
+        servoMotorB.MoveServoB(0, false);
+        break;
+    case 3:
+        //uImanager.handleUserInput(choice, &huart2);
+        distance = this->distanceSensor.CalculateDistance();
+        //uImanager.printDistance(distance, &huart2);
+        this->pidController.Compute(double(distance));
+
+        this->pidController.mapServosOutput(&mapOutput, &mapOutput2);
+
+        TIM2->CCR1 = mapOutput;
+        TIM2->CCR2 = mapOutput2;
+        break;
+    default:
+        break;
+    }
+}
+
+
 // Getter methods
-DistanceSensor RobotAuto::getDistanceSensor() const
+IDistanceSensor& RobotAuto::getDistanceSensor() const
 {
     return distanceSensor;
 }
 
-PIDController RobotAuto::getPIDController() const
+IPIDController& RobotAuto::getPIDController() const
 {
     return pidController;
 }
 
-ServoMotor RobotAuto::getServoMotorA() const
+IServoMotor& RobotAuto::getServoMotorA() const
 {
     return servoMotorA;
 }
 
-ServoMotor RobotAuto::getServoMotorB() const
+IServoMotor& RobotAuto::getServoMotorB() const
 {
     return servoMotorB;
 }
