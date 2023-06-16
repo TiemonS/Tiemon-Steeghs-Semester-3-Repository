@@ -9,7 +9,7 @@
 
 int UIManager::getUserInput(UART_HandleTypeDef *huart) {
     char msgBuf[msgBufSize];
-    snprintf(msgBuf, msgBufSize, "==================\nMenu:\n1. Servos aan\n2. Servos uit\n3. PID aanzetten\n4. Afsluiten\n\nVoer uw keuze in: ");
+    snprintf(msgBuf, msgBufSize, "==================\nMenu:\n1. Servos aan\n2. Servos uit\n3. PID aanzetten\n\nVoer uw keuze in: ");
     HAL_UART_Transmit(huart, (uint8_t*)msgBuf, strlen(msgBuf), HAL_MAX_DELAY);
 
     char userInput[input_Size];
@@ -35,11 +35,6 @@ void UIManager::PrintUserInput(int choice, UART_HandleTypeDef *huart) {
         case 3:
             // Optie 3 geselecteerd
             message = "\nPID aangezet!.\n";
-            break;
-        case 4:
-            // Afsluiten geselecteerd
-            message = "\nProgramma wordt afgesloten.\n";
-            // Voer hier code uit om het programma af te sluiten
             break;
         default:
             message = "\nOngeldige keuze.\n";

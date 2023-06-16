@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+unsigned long long swaps = 0;
+unsigned long long comparisions = 0;
+
 int FindSmallestNumberThatIsRepeatedKTimes(
             int* array, int size, int k, int* smallestNumber)
 {
@@ -51,10 +54,15 @@ int ComputeDifferenceBetweenMaxAndMinSumOfKElements_0(
         return -1;
     }
 
+    swaps = 0;
+    comparisions = 0;
+
     // Sort the array in ascending order using bubble sort
     for (int i = 0; i < size - 1; i++) {
         for (int j = 0; j < size - i - 1; j++) {
+            comparisions++;
             if (array[j] > array[j + 1]) {
+                swaps++;
                 int temp = array[j];
                 array[j] = array[j + 1];
                 array[j + 1] = temp;
@@ -73,6 +81,7 @@ int ComputeDifferenceBetweenMaxAndMinSumOfKElements_0(
     // Calculate the difference
     *difference = maxSum - minSum;
 
+    printf("Comparisions:%lld Swaps:%lld\n", comparisions, swaps);
     return -1;
 }
 
@@ -95,11 +104,14 @@ void Merge(int* arr, int l, int m, int r) {
     j = 0;
     k = l;
     while (i < n1 && j < n2) {
+        comparisions++;
         if (L[i] <= R[j]) {
+            swaps++;
             arr[k] = L[i];
             i++;
         }
         else {
+            swaps++;
             arr[k] = R[j];
             j++;
         }
@@ -108,6 +120,7 @@ void Merge(int* arr, int l, int m, int r) {
 
     // kopieer de resterende elementen van L[], indien aanwezig
     while (i < n1) {
+        swaps++;
         arr[k] = L[i];
         i++;
         k++;
@@ -115,6 +128,7 @@ void Merge(int* arr, int l, int m, int r) {
 
     // kopieer de resterende elementen van R[], indien aanwezig
     while (j < n2) {
+        swaps++;
         arr[k] = R[j];
         j++;
         k++;
@@ -136,9 +150,14 @@ void MergeSort(int* arr, int l, int r) {
 }
 
 int ComputeDifferenceBetweenMaxAndMinSumOfKElements_1(int* array, int size, int k, int* difference) {
-    if (k > size) {
-        return -1; // ongeldige waarde voor k
+    
+    if (array == NULL || difference == NULL || size <= 0 || k <= 0 || k > size) {
+        printf("Invalid input!\n");
+        return -1;
     }
+
+    swaps = 0;
+    comparisions = 0;
 
     // sorteer de array met behulp van MergeSort
     MergeSort(array, 0, size - 1);
@@ -154,6 +173,7 @@ int ComputeDifferenceBetweenMaxAndMinSumOfKElements_1(int* array, int size, int 
     // bereken het verschil en sla het op in de difference pointer
     *difference = sumMax - sumMin;
 
+    printf("Comparisions:%lld Swaps:%lld\n", comparisions, swaps);
     return 0;
 }
 
@@ -175,21 +195,29 @@ void selectionSort(int *array, int size)
         // unsorted array
         min_idx = i;
         for (j = i + 1; j < size; j++) {
+            comparisions++;
             if (array[j] < array[min_idx])
                 min_idx = j;
         }
  
         // Swap the found minimum element
         // with the first element
-        if (min_idx != i)
+        if (min_idx != i) 
+        {    swaps++;
             Swap(&array[min_idx], &array[i]);
+        }
     }
 }
 
 int ComputeDifferenceBetweenMaxAndMinSumOfKElements_2(int* array, int size, int k, int* difference) {
-    if (k > size) {
-        return -1; // Ongeldige waarde voor k
+    
+    if (array == NULL || difference == NULL || size <= 0 || k <= 0 || k > size) {
+        printf("Invalid input!\n");
+        return -1;
     }
+
+    swaps = 0;
+    comparisions = 0;
 
     // Sorteer de array met behulp van het selectiesort algoritme
     selectionSort(array, size);
@@ -205,6 +233,7 @@ int ComputeDifferenceBetweenMaxAndMinSumOfKElements_2(int* array, int size, int 
     // Bereken het verschil en sla het op in de difference pointer
     *difference = sumMax - sumMin;
 
+    printf("Comparisions:%lld Swaps:%lld\n", comparisions, swaps);
     return 0;
 }
 
