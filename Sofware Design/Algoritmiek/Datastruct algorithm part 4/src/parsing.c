@@ -22,12 +22,12 @@ TestCase* parseData(int* AmountOfTestCases)
         //Lees de waarde van N en M
         scanf("%d %d", &testCases[t].N, &testCases[t].M); 
 
-        // Allocate memory for the connections array
+        // Allocate memory voor de connections array
         testCases[t].connections = (int**)malloc(testCases[t].M * sizeof(int*));
 
         //alle connections in de array stoppen
         for (int i = 0; i < testCases[t].M; i++) {
-            // Allocate memory for the connection
+            // Allocate memory voor de losse connections
             testCases[t].connections[i] = (int*)malloc(2 * sizeof(int));
             scanf("%d %d", &testCases[t].connections[i][0], &testCases[t].connections[i][1]); // Read the connection X and Y
         }
