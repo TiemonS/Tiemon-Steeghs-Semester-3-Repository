@@ -210,3 +210,17 @@ struct element *ListGetPreviousElement(LinkedList *list, int address)
 
     return returnValue;
 }
+
+struct element* ListGetElement(struct LinkedList* linkedList, int addr) {
+    struct element* tempElement = linkedList->head;
+
+    for (int i = 0; i < linkedList->count; i++) 
+    {
+        if (tempElement->address == addr) {
+            return tempElement;  // Found the element with the matching address
+        }
+        tempElement = tempElement->next;
+    }
+
+    return NULL;  // Element not found
+}

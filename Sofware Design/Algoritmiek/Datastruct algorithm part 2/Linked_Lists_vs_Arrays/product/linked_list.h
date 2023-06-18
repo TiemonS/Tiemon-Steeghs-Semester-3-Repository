@@ -65,4 +65,6 @@ void ListRemoveAll(LinkedList *listPtr);
 
 struct element *ListGetPreviousElement(LinkedList *list, int address);
 
+struct element* ListGetElement(struct LinkedList* linkedList, int addr);
+
 #endif

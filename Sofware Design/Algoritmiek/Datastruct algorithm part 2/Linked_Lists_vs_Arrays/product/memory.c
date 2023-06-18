@@ -74,7 +74,13 @@ int PrintList(FILE* stream)
  *       otherwise the first block that is large enough is claimed and the start address is returned
  */
 int ClaimMemory(int nrofBytes)
-{
+{   
+    if (nrofBytes <= 0)
+    {
+        fprintf(stderr, "Invalid number of bytes: %d", nrofBytes);
+        return -1;
+    }
+
     bool spaceFound = false;
     //Ehet element voor het doorspieden van de lijst
     struct element *tempElement = FreeList->head;
@@ -91,6 +97,7 @@ int ClaimMemory(int nrofBytes)
     for (int i = 0; i < FreeList->count; i++)
     {
         //kijken of het gevraagde aantal bytes gelijk is aan het totale aantal bytes over
+        //fprintf(stderr, "tempElement->size == %d", tempElement->size);
         if (tempElement->size == nrofBytes)
         {
             //het address van new element gelijk maken aan het freelist address
@@ -138,6 +145,8 @@ int FreeMemory(int addr)
 {
     //het element wat uit de alloc lijst gehaald gaat worden
     struct element *elementToBeRemoved = (struct element *)malloc(sizeof(struct element));
+    elementToBeRemoved->address = 0; //als ik dit niet doe ontstaan er errors op het moment dat address 0 is
+
     //het element wat gebruikt wordt om door de linkedlists heen te gaan
     struct element *tempElement = AllocList->head;
 
@@ -156,7 +165,7 @@ int FreeMemory(int addr)
         }
     }
     //het address bestaat niet return -1
-    if (!elementToBeRemoved->address)
+    if (elementToBeRemoved->address != addr)
     {
         return -1;
     }
@@ -172,7 +181,7 @@ int FreeMemory(int addr)
     {
         if (tempElement->address - tempSizeValue == addr) // als address - size in bytes = address van element dan kan er gemerged worden met een element dat een groter address heeft
         {
-            fprintf(stderr, "Merge uitgevoerd met dit GROTERE element, Adress:%d Size:%d\n", tempElement->address, tempElement->size);
+            //fprintf(stderr, "Merge uitgevoerd met dit GROTERE element, Adress:%d Size:%d\n", tempElement->address, tempElement->size);
             // fprintf(stderr, "tempSizeValue (elementToBeRemoved->value): %d\n", tempSizeValue);
 
             //er kan gemerged worden dus tel de bytes op
@@ -188,41 +197,31 @@ int FreeMemory(int addr)
             tempElement->size += tempSizeValue;
             merged = true;
             // return tempSizeValue;
-            fprintf(stderr, "Merge uitgevoerd met dit KLEINERE element, Adress:%d Size:%d\n", tempElement->address, tempElement->size);
+            //fprintf(stderr, "Merge uitgevoerd met dit KLEINERE element, Adress:%d Size:%d\n", tempElement->address, tempElement->size);
             break;
         }
         else if (tempElement->next == NULL)
         {
-            break; // i = freeList->count - 1; // break kan ook
-        }
-        else
-        {
-            tempElement = tempElement->next;
-        }
-    }
-    // fprintf(stderr, "sgoeud\n");
-    tempElement = FreeList->head;
-    for (int i = 0; i < FreeList->count; i++)
-    {
-        if (tempElement->address == addr + tempSizeValue) // this means that the elements can be merged (example: part 2 documentation, freeing address 51, size 20, 3rd image)
-        {
             break;
-            // i = freeList->count + 1;
         }
+        //als er nog geen mergebaar element is gevonden gaan we naar het volgende element
         else
         {
             tempElement = tempElement->next;
         }
     }
-    if (tempElement != NULL && !merged)
-    {
-        tempElement->address -= tempSizeValue;
-        tempElement->size += tempSizeValue;
-        merged = true;
-    }
+    //Geen merge gelukt dan is er maar een element in de free list
+    //merge hiermee
+    // if (tempElement != NULL && !merged)
+    // {
+    //     tempElement->address -= tempSizeValue;
+    //     tempElement->size += tempSizeValue;
+    //     merged = true;
+    // }
     if (merged) // Als de freelist gemerged is, kijken of er nog meer gemerged kan worden?
     {
         tempElement = FreeList->head;
+        
         // fprintf(stderr, "tempElement->address: %d - tempElement->size: %d\n", tempElement->address, tempElement->size);
         // fprintf(stderr, "tempElement->next->address: %d = tempElement->next->size: %d\n", tempElement->next->address, tempElement->next->size);
         // if (tempElement->next == NULL)
@@ -231,63 +230,90 @@ int FreeMemory(int addr)
         // }
         for (int i = 0; i < FreeList->count; i++)
         {
-            // fprintf(stderr, "jaapmetbaap\n");
             if (tempElement->next != NULL)
             {
+                //opzoek naar het element die gemerged kan worden
                 if (tempElement->address + tempElement->size == tempElement->next->address)
                 {
-                    // fprintf(stderr, "jaapzonderbaap\n");
+                    //het aantal bytes van de twee elementen bij elkaar optellen
                     tempElement->size += tempElement->next->size;
-                    ListRemove(FreeList, &tempElement->next);
-                    break; // i = freeList->count - 1;
+                    //het element wat gemerged wordt removen
+                    fprintf(stderr, "Dit element opgekankerd in merge: %d\n", tempElement->next->address);
+                    //Het element wat weggehaald wordt eerst opslaan
+                    Element* toBeRemoved = tempElement->next;
+                    //dan het element erna een plek terugzetten zodat de pointers weer kloppen
+                    tempElement->next = tempElement->next->next;
+                    //dan het element weghalen wat wegehaald moeten worden
+                    ListRemove(FreeList, &toBeRemoved);
+                    continue;
                 }
             }
-            // fprintf(stderr, "jaapmetzonderbaap\n");
+            //we zijn aan het einde van de lijst gekomen zonder dar er iets gemerged kon worden
             if (tempElement->next == NULL)
             {
-                // fprintf(stderr, "goddommenogmahl\n");
+                fprintf(stderr, "Uit die merge loop broeder\n");
                 break;
             }
+            //anders doorgaan naar het volgende element
             else
             {
                 tempElement = tempElement->next;
             }
         }
-        // fprintf(stderr, "jaap\n");
     }
+    //als er niet gemerged kan worden en de freelist is leeg voeg dan nieuw element toe
     else if (FreeList->count == 0)
     {
         ListAddTail(FreeList, addr, tempSizeValue);
     }
+    //als er niet gemerged kan worden met er een nieuw element worden toegevoegd aan de freelist
     else
     {
-        // fprintf(stderr, "hier gaat t fout\n");
-        tempElement = FreeList->head;
-        // int mahmoud = 0;
-        for (int i = 0; i < FreeList->count; i++)
+    tempElement = FreeList->head;
+    struct element *prevElement = NULL; // Keep track of the previous element
+    bool added = false; // Flag to track if the new element has been added
+
+    for (int i = 0; i < FreeList->count; i++)
+    {
+    if (tempElement == NULL)
+    {
+        // Reached the end of the list, add the new element at the tail
+        ListAddTail(FreeList, addr, tempSizeValue);
+        added = true;
+        break;
+    }
+    else if (tempElement->address > addr)
+    {
+        // Found a larger address, insert the new element before it
+        if (prevElement == NULL)
         {
-            // fprintf(stderr, "keesmetvlees\n");
-            if (tempElement == NULL)
-            {
-                // fprintf(stderr, "keeszondervlees\n");
-                ListAddTail(FreeList, addr, tempSizeValue);
-                break;
-            }
-            else if (tempElement->address > addr)
-            {
-                // fprintf(stderr, "keesmetzondervlees\n");
-                // fprintf(stderr, "kees");
-                tempElement = ListGetPreviousElement(FreeList, tempElement->address);
-                if (tempElement == NULL)
-                {
-                    ListAddAfter(FreeList, addr, tempSizeValue, NULL);
-                    break;
-                }
-                ListAddAfter(FreeList, addr, tempSizeValue, tempElement);
-                break;
-            }
-            tempElement = tempElement->next;
+            // Insert at the head of the list
+            ListAddAfter(FreeList, addr, tempSizeValue, NULL);
         }
+        else
+        {
+            // Insert after the previous element
+            ListAddAfter(FreeList, addr, tempSizeValue, prevElement);
+        }
+        added = true;
+        break;
+    }
+    else
+    {
+        prevElement = tempElement;
+        tempElement = tempElement->next;
+    }
+    }
+
+    if (!added)
+    {
+    // The new element has the highest address, add it at the tail
+    ListAddTail(FreeList, addr, tempSizeValue);
+    }
+        
+        
+            
+        
     }
     return tempSizeValue;
 }
@@ -296,3 +322,18 @@ int MergeList()
 {
     return 0;
 }
+
+//TODO
+//free memory verder begrijpen merge enz
+//fouten in de input full fixen (het allocated en free van 1050 vlak achter elkaar)
+
+//als ik de check voor added weghaal uit free memory gooit hij geen segmentation fault meer?
+
+//andere fout: het programma kan maar een keer extra mergen
+//bij vaker dan een keer raken er bytes verloren zie free memory element 1050 met 30 bytes wordt random ook geremoved
+// bij de input full merged hij ook niet volledig omdat 1050 weg is en 1020 + 30 = 1050 en niet 1080
+
+//fout gevonden doordat tijdens het merge het volgende element niet werd opgeslagen kreeg je dus
+//dat in een rij van drie elementen [1000, 1020, 1050] dat 1000 ging wijzen naar NULL omdat 1020 geremoved werd
+//daarom zag 1000 1050 ook niet meer en was deze dus weg. Doormiddel van eerst op te slaan wat het element na 1020 is
+//kan je ervoor zorgen dat de elementen pointers goed worden opgeschoven
