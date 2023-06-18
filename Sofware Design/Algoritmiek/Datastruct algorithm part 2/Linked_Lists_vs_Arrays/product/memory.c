@@ -127,12 +127,15 @@ int ClaimMemory(int nrofBytes)
     //is er ruimte gevonden?
     if (spaceFound)
     {
-        //dat alloceren we de bytes in de alloc list
+        //dan alloceren we de bytes in de alloc list
         ListAddTail(AllocList, newElement->address, nrofBytes);
         // fprintf(stderr, "newElement->address: %d - newElement->size(nrofBytes): %d\n", newElement->address, newElement->size);
-        return newElement->address;
+        //eerst de waarde opslaan voordat de memory wordt vrijgegeven
+        int newAddress = newElement->address;
+        free(newElement);
+        return newAddress;
     }
-    // free(newElement), er wordt al een nieuwe aangemaakt in ListAddTail(), dus kan memory leaks veroorzaken
+    free(newElement); // er wordt al een nieuwe aangemaakt in ListAddTail(), dus kan memory leaks veroorzaken
     return -1;
 }
 
@@ -144,8 +147,8 @@ int ClaimMemory(int nrofBytes)
 int FreeMemory(int addr)
 {
     //het element wat uit de alloc lijst gehaald gaat worden
-    struct element *elementToBeRemoved = (struct element *)malloc(sizeof(struct element));
-    elementToBeRemoved->address = 0; //als ik dit niet doe ontstaan er errors op het moment dat address 0 is
+    struct element *elementToBeRemoved = NULL;
+    //elementToBeRemoved->address = 0; //als ik dit niet doe ontstaan er errors op het moment dat address 0 is
 
     //het element wat gebruikt wordt om door de linkedlists heen te gaan
     struct element *tempElement = AllocList->head;
@@ -165,7 +168,7 @@ int FreeMemory(int addr)
         }
     }
     //het address bestaat niet return -1
-    if (elementToBeRemoved->address != addr)
+    if (elementToBeRemoved == NULL)
     {
         return -1;
     }
@@ -238,7 +241,7 @@ int FreeMemory(int addr)
                     //het aantal bytes van de twee elementen bij elkaar optellen
                     tempElement->size += tempElement->next->size;
                     //het element wat gemerged wordt removen
-                    fprintf(stderr, "Dit element opgekankerd in merge: %d\n", tempElement->next->address);
+                    fprintf(stderr, "Dit element geremoved in merge: %d\n", tempElement->next->address);
                     //Het element wat weggehaald wordt eerst opslaan
                     Element* toBeRemoved = tempElement->next;
                     //dan het element erna een plek terugzetten zodat de pointers weer kloppen
@@ -251,7 +254,7 @@ int FreeMemory(int addr)
             //we zijn aan het einde van de lijst gekomen zonder dar er iets gemerged kon worden
             if (tempElement->next == NULL)
             {
-                fprintf(stderr, "Uit die merge loop broeder\n");
+                //fprintf(stderr, "Uit die merge loop broeder\n");
                 break;
             }
             //anders doorgaan naar het volgende element
@@ -275,45 +278,40 @@ int FreeMemory(int addr)
 
     for (int i = 0; i < FreeList->count; i++)
     {
-    if (tempElement == NULL)
-    {
-        // Reached the end of the list, add the new element at the tail
-        ListAddTail(FreeList, addr, tempSizeValue);
-        added = true;
-        break;
-    }
-    else if (tempElement->address > addr)
-    {
-        // Found a larger address, insert the new element before it
-        if (prevElement == NULL)
+        if (tempElement == NULL)
         {
-            // Insert at the head of the list
-            ListAddAfter(FreeList, addr, tempSizeValue, NULL);
+            // Reached the end of the list, add the new element at the tail
+            ListAddTail(FreeList, addr, tempSizeValue);
+            added = true;
+            break;
+        }
+        else if (tempElement->address > addr)
+        {
+            // Found a larger address, insert the new element before it
+            if (prevElement == NULL)
+            {
+                // Insert at the head of the list
+                ListAddAfter(FreeList, addr, tempSizeValue, NULL);
+            }
+            else
+            {
+                // Insert after the previous element
+                ListAddAfter(FreeList, addr, tempSizeValue, prevElement);
+            }
+            added = true;
+            break;
         }
         else
         {
-            // Insert after the previous element
-            ListAddAfter(FreeList, addr, tempSizeValue, prevElement);
+            prevElement = tempElement;
+            tempElement = tempElement->next;
         }
-        added = true;
-        break;
     }
-    else
-    {
-        prevElement = tempElement;
-        tempElement = tempElement->next;
-    }
-    }
-
-    if (!added)
-    {
-    // The new element has the highest address, add it at the tail
-    ListAddTail(FreeList, addr, tempSizeValue);
-    }
-        
-        
-            
-        
+        if (!added)
+        {
+        // The new element has the highest address, add it at the tail
+        ListAddTail(FreeList, addr, tempSizeValue);
+        }
     }
     return tempSizeValue;
 }

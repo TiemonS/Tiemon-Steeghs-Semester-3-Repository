@@ -21,7 +21,9 @@ struct LinkedList *CreateList()
 int ListAddTail(LinkedList *linkedList, int address, int size)
 {
     Element* newElement = (Element*)malloc(sizeof(Element));
-    if (newElement == NULL) {
+    if (newElement == NULL) 
+    {
+        free(newElement);
         return -1; // Memory allocation failed
     }
 
@@ -40,7 +42,6 @@ int ListAddTail(LinkedList *linkedList, int address, int size)
     }
 
     linkedList->count++;
-
     return 0;
 }
 
@@ -59,6 +60,7 @@ int ListAddAfter(LinkedList *linkedList, int address, int size, Element* element
 
     Element* newElement = (Element*)malloc(sizeof(Element));
     if (newElement == NULL) {
+        free(newElement);
         return -1; // Memory allocation failed
     }
 
@@ -133,15 +135,19 @@ int ListRemove(LinkedList *linkedList, Element** element)
         return -1; // List is empty or element is NULL
     }
 
-    if (*element == linkedList->head) {
+    if (*element == linkedList->head) 
+    {
         Element* temp = linkedList->head;
         linkedList->head = linkedList->head->next;
         free(temp);
         *element = NULL;
-    } else {
+    } 
+    else 
+    {
         Element* current = linkedList->head;
         Element* previous = NULL;
-        while (current != NULL && current != *element) {
+        while (current != NULL && current != *element) 
+        {
             previous = current;
             current = current->next;
         }
@@ -154,7 +160,6 @@ int ListRemove(LinkedList *linkedList, Element** element)
         free(current);
         *element = NULL;
     }
-
     linkedList->count--;
 
     return 0;
@@ -174,53 +179,4 @@ void ListRemoveAll(LinkedList *linkedList)
     }
     linkedList->head = NULL;
     linkedList->count = 0;
-}
-
-struct element *ListGetPreviousElement(LinkedList *list, int address)
-{
-    // assert(list != NULL);
-    if (list == NULL)
-    {
-        return NULL;
-    }
-
-    struct element *returnValue = NULL;
-
-    struct element *previousElement = NULL;
-    struct element *currentElement = list->head;
-
-    if (currentElement != NULL)
-    {
-        while (currentElement->address != address)
-        {
-            if (currentElement->next == NULL)
-            {
-                // list has ended without finding the element
-                return returnValue;
-            }
-            else
-            {
-                previousElement = currentElement;
-                currentElement = currentElement->next;
-            }
-        }
-    }
-
-    returnValue = previousElement;
-
-    return returnValue;
-}
-
-struct element* ListGetElement(struct LinkedList* linkedList, int addr) {
-    struct element* tempElement = linkedList->head;
-
-    for (int i = 0; i < linkedList->count; i++) 
-    {
-        if (tempElement->address == addr) {
-            return tempElement;  // Found the element with the matching address
-        }
-        tempElement = tempElement->next;
-    }
-
-    return NULL;  // Element not found
 }

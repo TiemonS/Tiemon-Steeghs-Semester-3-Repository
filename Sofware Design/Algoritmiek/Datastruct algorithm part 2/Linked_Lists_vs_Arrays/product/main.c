@@ -66,6 +66,7 @@ int main(int argc, char* argv[])
             break;
         case MO_QUIT:
             // nothing to do here
+            DestructMemory();
             break;
         default:
             printf("invalid choice: %d\n", choice);
@@ -74,7 +75,6 @@ int main(int argc, char* argv[])
     }
 
     /* opruimen van de lijsten */
-    DestructMemory();
 
     return 0;
 }
