@@ -37,6 +37,6 @@ int ClaimMemory(int nrofBytes);
  */
 int FreeMemory(int addr);
 
-int MergeList();
+void MergeFreeList();
 
 #endif

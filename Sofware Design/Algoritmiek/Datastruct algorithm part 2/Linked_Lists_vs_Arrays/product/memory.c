@@ -33,6 +33,8 @@ void DestructMemory()
     ListRemoveAll(AllocList);
     free(FreeList);
     free(AllocList);
+    FreeList = NULL;
+    AllocList = NULL;
 }
 
 
@@ -85,7 +87,7 @@ int ClaimMemory(int nrofBytes)
     //Ehet element voor het doorspieden van de lijst
     struct element *tempElement = FreeList->head;
     //het element wat toegevoegd gaat worden aan de alloc list
-    struct element *newElement = (struct element *)malloc(sizeof(struct element));
+    struct element *newElement =  NULL;
 
     //kijken of de free list niet leeg is
     if (tempElement == NULL)
@@ -100,6 +102,7 @@ int ClaimMemory(int nrofBytes)
         //fprintf(stderr, "tempElement->size == %d", tempElement->size);
         if (tempElement->size == nrofBytes)
         {
+            newElement = (struct element*)malloc(sizeof(struct element));
             //het address van new element gelijk maken aan het freelist address
             newElement->address = tempElement->address; 
             //het address goed update doormiddel van het aantal bytes erbij op te tellen
@@ -112,6 +115,7 @@ int ClaimMemory(int nrofBytes)
         //is het niet gelijk aan het totale aantal, is er dan uberhaupt nog ruimte?
         else if (tempElement->size > nrofBytes)
         {
+            newElement = (struct element*)malloc(sizeof(struct element));
             //het address van new element gelijk maken aan het freelist address
             newElement->address = tempElement->address;
             //het address goed update doormiddel van het aantal bytes erbij op te tellen
@@ -176,6 +180,7 @@ int FreeMemory(int addr)
     int tempSizeValue = elementToBeRemoved->size;
     //het address wat wordt vrijgegeven removen
     ListRemove(AllocList, &elementToBeRemoved);
+    //free(elementToBeRemoved);
 
     //dan gaan we kijken of er gemerged kan worden in de free list
     tempElement = FreeList->head;
@@ -213,56 +218,11 @@ int FreeMemory(int addr)
             tempElement = tempElement->next;
         }
     }
-    //Geen merge gelukt dan is er maar een element in de free list
-    //merge hiermee
-    // if (tempElement != NULL && !merged)
-    // {
-    //     tempElement->address -= tempSizeValue;
-    //     tempElement->size += tempSizeValue;
-    //     merged = true;
-    // }
+    
+    //Kijken of er meer gemerged kan worden
     if (merged) // Als de freelist gemerged is, kijken of er nog meer gemerged kan worden?
     {
-        tempElement = FreeList->head;
-        
-        // fprintf(stderr, "tempElement->address: %d - tempElement->size: %d\n", tempElement->address, tempElement->size);
-        // fprintf(stderr, "tempElement->next->address: %d = tempElement->next->size: %d\n", tempElement->next->address, tempElement->next->size);
-        // if (tempElement->next == NULL)
-        // {
-        //     return tempSizeValue;
-        // }
-        for (int i = 0; i < FreeList->count; i++)
-        {
-            if (tempElement->next != NULL)
-            {
-                //opzoek naar het element die gemerged kan worden
-                if (tempElement->address + tempElement->size == tempElement->next->address)
-                {
-                    //het aantal bytes van de twee elementen bij elkaar optellen
-                    tempElement->size += tempElement->next->size;
-                    //het element wat gemerged wordt removen
-                    fprintf(stderr, "Dit element geremoved in merge: %d\n", tempElement->next->address);
-                    //Het element wat weggehaald wordt eerst opslaan
-                    Element* toBeRemoved = tempElement->next;
-                    //dan het element erna een plek terugzetten zodat de pointers weer kloppen
-                    tempElement->next = tempElement->next->next;
-                    //dan het element weghalen wat wegehaald moeten worden
-                    ListRemove(FreeList, &toBeRemoved);
-                    continue;
-                }
-            }
-            //we zijn aan het einde van de lijst gekomen zonder dar er iets gemerged kon worden
-            if (tempElement->next == NULL)
-            {
-                //fprintf(stderr, "Uit die merge loop broeder\n");
-                break;
-            }
-            //anders doorgaan naar het volgende element
-            else
-            {
-                tempElement = tempElement->next;
-            }
-        }
+        MergeFreeList();
     }
     //als er niet gemerged kan worden en de freelist is leeg voeg dan nieuw element toe
     else if (FreeList->count == 0)
@@ -316,9 +276,37 @@ int FreeMemory(int addr)
     return tempSizeValue;
 }
 
-int MergeList() 
+void MergeFreeList()
 {
-    return 0;
+    if (FreeList->count <= 1)
+        return;
+
+    Element* current = FreeList->head;
+    Element* next = current->next;
+
+    while (next != NULL)
+    {
+        if (current->address + current->size == next->address)
+        {
+            // Merge the two blocks
+            current->size += next->size;
+
+            // Remove the next block from the free list
+            ListRemove(FreeList, &next);
+
+            // Free the memory of the next block
+            free(next);
+
+            // Update the next pointer
+            next = current->next;
+        }
+        else
+        {
+            // Move to the next pair of elements
+            current = next;
+            next = next->next;
+        }
+    }
 }
 
 //TODO
