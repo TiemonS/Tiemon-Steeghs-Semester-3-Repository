@@ -9,6 +9,7 @@ static const int StartAddress = 1000;
 struct LinkedList* FreeList;
 struct LinkedList* AllocList;
 
+
 /* function: ConstructMemory
  * pre: -
  * post: memory administration is constructed
@@ -132,12 +133,14 @@ int ClaimMemory(int nrofBytes)
     if (spaceFound)
     {
         //dan alloceren we de bytes in de alloc list
-        ListAddTail(AllocList, newElement->address, nrofBytes);
+        AddElementToRightLocation(AllocList, newElement->address, nrofBytes);
+        //ListAddTail(AllocList, newElement->address, nrofBytes);
         // fprintf(stderr, "newElement->address: %d - newElement->size(nrofBytes): %d\n", newElement->address, newElement->size);
         //eerst de waarde opslaan voordat de memory wordt vrijgegeven
         int newAddress = newElement->address;
         free(newElement);
         return newAddress;
+         
     }
     free(newElement); // er wordt al een nieuwe aangemaakt in ListAddTail(), dus kan memory leaks veroorzaken
     return -1;
@@ -232,46 +235,7 @@ int FreeMemory(int addr)
     //als er niet gemerged kan worden met er een nieuw element worden toegevoegd aan de freelist
     else
     {
-    tempElement = FreeList->head;
-    struct element *prevElement = NULL; // Keep track of the previous element
-    bool added = false; // Flag to track if the new element has been added
-
-    for (int i = 0; i < FreeList->count; i++)
-    {
-        if (tempElement == NULL)
-        {
-            // Reached the end of the list, add the new element at the tail
-            ListAddTail(FreeList, addr, tempSizeValue);
-            added = true;
-            break;
-        }
-        else if (tempElement->address > addr)
-        {
-            // Found a larger address, insert the new element before it
-            if (prevElement == NULL)
-            {
-                // Insert at the head of the list
-                ListAddAfter(FreeList, addr, tempSizeValue, NULL);
-            }
-            else
-            {
-                // Insert after the previous element
-                ListAddAfter(FreeList, addr, tempSizeValue, prevElement);
-            }
-            added = true;
-            break;
-        }
-        else
-        {
-            prevElement = tempElement;
-            tempElement = tempElement->next;
-        }
-    }
-        if (!added)
-        {
-        // The new element has the highest address, add it at the tail
-        ListAddTail(FreeList, addr, tempSizeValue);
-        }
+        AddElementToRightLocation(FreeList, addr, tempSizeValue);
     }
     return tempSizeValue;
 }
@@ -306,6 +270,50 @@ void MergeFreeList()
             current = next;
             next = next->next;
         }
+    }
+}
+
+void AddElementToRightLocation(LinkedList* linkedlist, int addr, int tempSizeValue) 
+{
+    Element* current = linkedlist->head;
+    Element *prevElement = NULL; // Keep track of the previous element
+    bool added = false; // Flag to track if the new element has been added
+
+    for (int i = 0; i < linkedlist->count; i++)
+    {
+        if (current == NULL)
+        {
+            // Reached the end of the list, add the new element at the tail
+            ListAddTail(linkedlist, addr, tempSizeValue);
+            added = true;
+            break;
+        }
+        else if (current->address > addr)
+        {
+            // Found a larger address, insert the new element before it
+            if (prevElement == NULL)
+            {
+                // Insert at the head of the list
+                ListAddAfter(linkedlist, addr, tempSizeValue, NULL);
+            }
+            else
+            {
+                // Insert after the previous element
+                ListAddAfter(linkedlist, addr, tempSizeValue, prevElement);
+            }
+            added = true;
+            break;
+        }
+        else
+        {
+            prevElement = current;
+            current = current->next;
+        }
+    }
+    if (!added)
+    {
+    // The new element has the highest address, add it at the tail
+    ListAddTail(linkedlist, addr, tempSizeValue);
     }
 }
 

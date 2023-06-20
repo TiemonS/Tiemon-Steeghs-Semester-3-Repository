@@ -1,4 +1,4 @@
-<mxfile host="Electron" modified="2023-06-13T12:14:24.912Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.2.8 Chrome/112.0.5615.165 Electron/24.2.0 Safari/537.36" etag="RTumiA6WwymK9f88KV9D" version="21.2.8" type="device">
+<mxfile host="Electron" modified="2023-06-13T12:17:14.803Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.2.8 Chrome/112.0.5615.165 Electron/24.2.0 Safari/537.36" etag="tTHqo1ZyEmdMPHcqPNhJ" version="21.2.8" type="device">
   <diagram name="Pagina-1" id="tLsxebPHoMqLCGwJLSkC">
     <mxGraphModel dx="2967" dy="1955" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
@@ -443,8 +443,8 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="vX_oxzfzwHXFawn8JX_C-3" value="&lt;p&gt;TIMER_TIMEOUT&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;/ motor.TurnRight()&lt;/span&gt;&lt;/p&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="d3JRZ0Z-gsxvtp5kxETU-26" vertex="1">
-          <mxGeometry x="339.99999999999994" y="220" width="220" height="50" as="geometry" />
+        <mxCell id="vX_oxzfzwHXFawn8JX_C-3" value="&lt;p&gt;TIMER_TIMEOUT [kneadCounter % 2 != 0]&lt;span style=&quot;background-color: initial;&quot;&gt;/ motor.TurnRight()&lt;/span&gt;&lt;/p&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="d3JRZ0Z-gsxvtp5kxETU-26" vertex="1">
+          <mxGeometry x="209.99999999999994" y="210" width="350" height="50" as="geometry" />
         </mxCell>
         <mxCell id="qKFmHFGVHB_05tScaTR9-5" value="OVEN_DONE / oven.Cancel()" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="d3JRZ0Z-gsxvtp5kxETU-26">
           <mxGeometry x="866.46" y="490" width="180" height="30" as="geometry" />

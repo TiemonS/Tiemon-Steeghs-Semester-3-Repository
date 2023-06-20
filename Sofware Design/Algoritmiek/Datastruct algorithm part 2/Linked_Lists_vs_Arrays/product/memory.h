@@ -2,6 +2,7 @@
 #define MEMORY_H
 
 #include <stdio.h>
+#include "linked_list.h"
 
 /* function: ConstructMemory
  * pre: -
@@ -38,5 +39,7 @@ int ClaimMemory(int nrofBytes);
 int FreeMemory(int addr);
 
 void MergeFreeList();
+
+void AddElementToRightLocation(LinkedList *linkedlist, int addr, int tempSizeValue); 
 
 #endif

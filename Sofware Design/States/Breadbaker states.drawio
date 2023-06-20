@@ -1,6 +1,6 @@
-<mxfile host="Electron" modified="2023-06-13T12:17:14.803Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.2.8 Chrome/112.0.5615.165 Electron/24.2.0 Safari/537.36" etag="tTHqo1ZyEmdMPHcqPNhJ" version="21.2.8" type="device">
+<mxfile host="Electron" modified="2023-06-20T07:47:13.756Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.2.8 Chrome/112.0.5615.165 Electron/24.2.0 Safari/537.36" etag="kuTyvVAHYsRSamOigikJ" version="21.2.8" type="device">
   <diagram name="Pagina-1" id="tLsxebPHoMqLCGwJLSkC">
-    <mxGraphModel dx="2967" dy="1955" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="3154" dy="2068" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -446,7 +446,7 @@
         <mxCell id="vX_oxzfzwHXFawn8JX_C-3" value="&lt;p&gt;TIMER_TIMEOUT [kneadCounter % 2 != 0]&lt;span style=&quot;background-color: initial;&quot;&gt;/ motor.TurnRight()&lt;/span&gt;&lt;/p&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="d3JRZ0Z-gsxvtp5kxETU-26" vertex="1">
           <mxGeometry x="209.99999999999994" y="210" width="350" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="qKFmHFGVHB_05tScaTR9-5" value="OVEN_DONE / oven.Cancel()" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="d3JRZ0Z-gsxvtp5kxETU-26">
+        <mxCell id="qKFmHFGVHB_05tScaTR9-5" value="OVEN_DONE / oven.Cancel()" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="d3JRZ0Z-gsxvtp5kxETU-26" vertex="1">
           <mxGeometry x="866.46" y="490" width="180" height="30" as="geometry" />
         </mxCell>
         <mxCell id="DwlNqA49wbPzXnXZkH1S-11" value="MENU_BUTTON_LONG_PRESSED / State = Standby" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
@@ -513,7 +513,7 @@
         <mxCell id="vX_oxzfzwHXFawn8JX_C-12" value="TIMER_DOWN_BUTTON_PRESSED [programNumber ==4 &amp;amp;&amp;amp; bakingTime &amp;gt; 30] / &lt;br&gt;timerTime += 10;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;rotation=-45;" parent="1" vertex="1">
           <mxGeometry x="-900" y="-500" width="460" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="qKFmHFGVHB_05tScaTR9-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1.003;entryY=0.63;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="DwlNqA49wbPzXnXZkH1S-39" target="d3JRZ0Z-gsxvtp5kxETU-9">
+        <mxCell id="qKFmHFGVHB_05tScaTR9-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1.003;entryY=0.63;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="DwlNqA49wbPzXnXZkH1S-39" target="d3JRZ0Z-gsxvtp5kxETU-9" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="-150" y="405" />
